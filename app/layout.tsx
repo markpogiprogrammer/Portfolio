@@ -12,34 +12,40 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Ibrahim Memon - Software Engineer & UI/UX Designer",
-  description: "A self-taught UI/UX designer and Software Engineer at WebHR. Creating meaningful and delightful digital products that balance user needs and business goals. 3+ years of industry experience.",
+  title: "Mark Oliver Quiazon | Software QA Engineer & Information Systems Specialist",
+  description: "Portfolio of Mark Oliver Quiazon — Information Systems Student at De La Salle - College of Saint Benilde specializing in Software Quality Assurance, Test Automation, Information Security, and Full-Stack Development.",
   keywords: [
-    "Ibrahim Memon",
-    "Software Engineer",
-    "UI/UX Designer",
-    "Frontend Developer",
-    "React Developer",
-    "Next.js Developer",
-    "Web Designer",
-    "WebHR Engineer",
-    "Portfolio",
+    "Mark Oliver Quiazon",
+    "Mark Quiazon",
+    "Software QA Engineer",
+    "Software Tester",
+    "Information Systems",
+    "De La Salle - College of Saint Benilde",
+    "Test Automation",
+    "Playwright with Gemini CLI",
+    "Hardware QA",
+    "Postman",
+    "Information Security",
+    "BiteBalance",
+    "Full-Stack Developer",
+    "React",
+    "Next.js",
   ],
-  authors: [{ name: "Ibrahim Memon" }],
-  creator: "Ibrahim Memon",
-  publisher: "Ibrahim Memon",
+  authors: [{ name: "Mark Oliver Quiazon" }],
+  creator: "Mark Oliver Quiazon",
+  publisher: "Mark Oliver Quiazon",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://ibiimemon.com",
-    title: "Ibrahim Memon - Software Engineer & UI/UX Designer",
-    description: "A self-taught UI/UX designer and Software Engineer at WebHR. Creating meaningful and delightful digital products.",
-    siteName: "Ibrahim Memon Portfolio",
+    url: "https://quiazonportfolio.netlify.app/",
+    title: "Mark Oliver Quiazon | Software QA Engineer & Information Systems Specialist",
+    description: "Bridging the gap between IT & Physical Fitness. Specialized in Software Quality Assurance, Testing, Information Security & Full-Stack Web Development.",
+    siteName: "Mark Oliver Quiazon Portfolio",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ibrahim Memon - Software Engineer & UI/UX Designer",
-    description: "A self-taught UI/UX designer and Software Engineer at WebHR.",
+    title: "Mark Oliver Quiazon | Software QA & Information Systems",
+    description: "Bridging the gap between IT & Physical Fitness. BS Information Systems student at De La Salle - College of Saint Benilde.",
   },
   robots: {
     index: true,
@@ -66,12 +72,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <head>
-        <link rel="canonical" href="https://ibiimemon.com" />
+        <link rel="canonical" href="https://quiazonportfolio.netlify.app/" />
       </head>
       <body
-        className={`${poppins.variable} font-sans antialiased`}
+        className={`${poppins.variable} font-sans bg-[#110720] text-white antialiased selection:bg-purple-500 selection:text-white`}
       >
         {children}
         <Analytics />
