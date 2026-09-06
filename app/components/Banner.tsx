@@ -132,7 +132,7 @@ export default function Banner({ onOpenResume }: BannerProps = {}): React.JSX.El
             {/* Dynamic CTA Buttons */}
             <div className="pt-4 flex flex-wrap gap-4 justify-center lg:justify-start">
               <a
-                href="/Resume - Mark Quiazon.pdf"
+                href="/Mark Oliver Quiazon - Resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleResumeClick}

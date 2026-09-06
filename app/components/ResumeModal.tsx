@@ -12,7 +12,7 @@ interface ResumeModalProps {
 export default function ResumeModal({
   isOpen,
   onClose,
-  resumeUrl = "/Resume - Mark Quiazon.pdf",
+  resumeUrl = "/Mark Oliver Quiazon - Resume.pdf",
 }: ResumeModalProps): React.JSX.Element | null {
   // Lock background scroll when modal is open and add ESC key listener
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function ResumeModal({
           <div className="flex items-center gap-2 sm:gap-3">
             <a
               href={resumeUrl}
-              download="Resume - Mark Quiazon.pdf"
+              download="Mark Oliver Quiazon - Resume.pdf"
               className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 rounded-xl shadow-md shadow-purple-900/40 hover:shadow-purple-700/50 transition-all duration-200"
             >
               <Download className="w-4 h-4" />
@@ -108,7 +108,7 @@ export default function ResumeModal({
           <iframe
             src={`${resumeUrl}#toolbar=1&navpanes=0`}
             className="w-full h-full border-none flex-1"
-            title="Mark Quiazon Resume PDF Preview"
+            title="Mark Oliver Quiazon Resume PDF Preview"
           />
 
           {/* Mobile / Fallback Banner at bottom of PDF viewer */}
@@ -126,7 +126,7 @@ export default function ResumeModal({
               <span>•</span>
               <a
                 href={resumeUrl}
-                download="Resume - Mark Quiazon.pdf"
+                download="Mark Oliver Quiazon - Resume.pdf"
                 className="text-purple-300 hover:text-purple-200 underline font-medium"
               >
                 Direct Download

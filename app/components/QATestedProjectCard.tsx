@@ -15,6 +15,23 @@ export interface QAProjectItem {
   testingScope: string[];
   deliverables: string[];
   toolsUsed: string[];
+  metricsHighlights?: string[];
+  sampleDocTitle?: string;
+  sampleDocContent?: {
+    overview: string;
+    totalTestCases: number;
+    passRate: string;
+    criticalBugsFixed: number;
+    sampleBugReport: {
+      bugId: string;
+      title: string;
+      severity: string;
+      stepsToReproduce: string[];
+      expectedResult: string;
+      actualResult: string;
+      status: string;
+    };
+  };
 }
 
 export default function QATestedProjectCard({ project }: { project: QAProjectItem }): React.JSX.Element {

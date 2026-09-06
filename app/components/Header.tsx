@@ -90,7 +90,7 @@ export default function Header({ onOpenResume }: HeaderProps = {}): React.JSX.El
         {/* Action Button & Mobile Toggle */}
         <div className="flex items-center gap-3">
           <a
-            href="/Resume - Mark Quiazon.pdf"
+            href="/Mark Oliver Quiazon - Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleResumeClick}
@@ -133,7 +133,7 @@ export default function Header({ onOpenResume }: HeaderProps = {}): React.JSX.El
               );
             })}
             <a
-              href="/Resume - Mark Quiazon.pdf"
+              href="/Mark Oliver Quiazon - Resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => {

@@ -1,19 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { ExternalLink, Sparkles, CheckCircle2, Code2, Database, ShieldCheck, Flame } from "lucide-react";
-import { GithubIcon } from "./SocialIcons";
+import { ExternalLink, CheckCircle2, Code2 } from "lucide-react";
 
 interface FeaturedProject {
   id: string;
   title: string;
   subtitle: string;
+  badge?: string;
+  categoryTag?: string;
   problemStatement: string;
   solution: string;
   keyFeatures: string[];
   techStack: string[];
   liveUrl?: string;
-  githubUrl?: string;
   imageUrl: string;
   isFeatured?: boolean;
 }
@@ -23,6 +23,8 @@ const projects: FeaturedProject[] = [
     id: "bitebalance",
     title: "BiteBalance",
     subtitle: "Culturally Relevant Nutrition & Meal Tracking PWA for Young Filipino Adults",
+    badge: "Capstone Project",
+    categoryTag: "BS Information Systems — Nominated Best Thesis",
     problemStatement:
       "Generic global nutrition applications fail to account for traditional Filipino meals, leading to inaccurate calorie estimations, poor engagement, and lack of culturally tailored dietary insights for young adults in the Philippines.",
     solution:
@@ -37,12 +39,31 @@ const projects: FeaturedProject[] = [
     techStack: ["React.js", "PWA", "Tailwind CSS", "C# / ASP.NET API", "SQL Server", "Netlify"],
     liveUrl:
       "https://bitebalancever17.netlify.app/?fbclid=IwY2xjawQLlgFleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAEwAAEeB-Em3XiiI9y-IKdlIEzoSIbNmVi1CUqZgjicIuDhkbAOQRZ6Xd-Hau3Ni9I_aem_zrHWAniHNg7IJWPagpG-yA",
-    githubUrl: "https://github.com/markpogiprogrammer",
     imageUrl: "/projects/bitebalance1.png",
     isFeatured: true,
   },
-
-
+  {
+    id: "apartment-billing",
+    title: "Apartment Billing",
+    subtitle: "Automated Water Utility Billing, Tenant & Unit Management, and Revenue Tracking System",
+    badge: "Automation & Management System",
+    categoryTag: "Property Management & Utility Automation",
+    problemStatement:
+      "Property administrators and landlords face tedious, repetitive, and error-prone manual input of water bill data across scattered Microsoft Excel sheets and Word templates. Manually calculating water consumption rates, typing individual bill sheets, and generating receipts wastes hours every billing cycle without centralized monthly income tracking.",
+    solution:
+      "Engineered an automated Apartment Billing & Property Management System that eliminates repetitive manual spreadsheets by auto-calculating water consumption, generating ready-to-print bill sheets and official receipts in one click, and providing complete tenant management, unit occupancy tracking, and real-time total monthly income analytics.",
+    keyFeatures: [
+      "Automated Water Utility Billing: Automatically computes consumption from previous and current meter readings with rate formulas, eliminating manual Excel entry",
+      "Automated Bill Sheets & Receipt Generation: Streamlines the entire billing pipeline with one-click generation of printable tenant bill sheets and official payment receipts",
+      "Tenant Management: Comprehensive management of active and past tenant records, lease details, contact information, and payment histories",
+      "Unit & Room Management: Real-time unit occupancy tracking, room availability monitoring, and tenant unit assignments",
+      "Total Monthly Income & Revenue Analytics: Real-time dashboard calculating monthly income totals, collection status, and financial overview",
+      "Structured Historical Database: Replaces loose spreadsheet files with a centralized database for complete data reconciliation and audit trails"
+    ],
+    techStack: ["C# / .NET", "SQL Server (SSMS)", "Windows Forms / WPF", "Automated Reporting", "Excel & PDF Generation"],
+    imageUrl: "/projects/apartment_billing.jpg",
+    isFeatured: false,
+  }
 ];
 
 export default function DevProjects(): React.JSX.Element {
@@ -50,6 +71,7 @@ export default function DevProjects(): React.JSX.Element {
     <section id="dev-projects" className="py-24 px-4 sm:px-6 relative bg-[#0d051a]">
       {/* Background Orbs */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-purple-900/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-indigo-900/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto max-w-7xl relative z-10">
 
@@ -57,13 +79,13 @@ export default function DevProjects(): React.JSX.Element {
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider">
             <Code2 className="w-3.5 h-3.5" />
-            <span>Software Development &amp; </span>
+            <span>Software Development &amp; Architecture</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Featured <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">Development Project</span>
+            Featured <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">Development Projects</span>
           </h2>
           <p className="text-base sm:text-lg text-white/70 leading-relaxed">
-            In-depth breakdowns of full-stack applications, problem statements, technical solutions, and live implementations.
+            In-depth breakdowns of full-stack applications, problem statements, technical solutions, and real-world implementations.
           </p>
         </div>
 
@@ -77,17 +99,17 @@ export default function DevProjects(): React.JSX.Element {
                 key={project.id}
                 className="glass-card rounded-3xl p-6 sm:p-10 border border-purple-500/20 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40"
               >
-                <div className={`grid grid-cols-1 lg:grid-cols-12 gap-10 items-center ${isReverse ? "lg:flex-row-reverse" : ""}`}>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                   {/* Text Column */}
-                  <div className="lg:col-span-7 space-y-6">
+                  <div className={`lg:col-span-7 space-y-6 ${isReverse ? "lg:order-2" : "lg:order-1"}`}>
 
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <span className="px-3 py-1 rounded-full text-xs font-bold text-purple-300 bg-purple-950/80 border border-purple-500/40 uppercase tracking-wider">
-                          {project.isFeatured ? "Flagship Project" : "Academic System"}
+                          {project.badge || (project.isFeatured ? "Capstone Project" : "Academic System")}
                         </span>
-                        <span className="text-xs text-white/50">BS Information Systems</span>
+                        <span className="text-xs text-white/50">{project.categoryTag || "BS Information Systems"}</span>
                       </div>
                       <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
                         {project.title}
@@ -148,8 +170,8 @@ export default function DevProjects(): React.JSX.Element {
                     </div>
 
                     {/* Action Links */}
-                    <div className="flex flex-wrap gap-4 pt-4">
-                      {project.liveUrl && (
+                    {project.liveUrl && (
+                      <div className="flex flex-wrap gap-4 pt-4">
                         <a
                           href={project.liveUrl}
                           target="_blank"
@@ -157,26 +179,15 @@ export default function DevProjects(): React.JSX.Element {
                           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold text-xs rounded-xl shadow-md shadow-purple-900/40 transition-all hover:scale-105"
                         >
                           <ExternalLink className="w-4 h-4" />
-                          <span>Launch Live PWA App</span>
+                          <span>Launch Live App</span>
                         </a>
-                      )}
-                      {project.githubUrl && (
-                        <a
-                          href={project.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl border border-white/10 hover:border-purple-500/40 transition-all"
-                        >
-                          <GithubIcon className="w-4 h-4 text-purple-400" />
-                          <span>View Code Repository</span>
-                        </a>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                   </div>
 
                   {/* Image Preview Column */}
-                  <div className="lg:col-span-5 flex justify-center">
+                  <div className={`lg:col-span-5 flex justify-center ${isReverse ? "lg:order-1" : "lg:order-2"}`}>
                     <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-950 p-2 shadow-2xl group">
                       <div className="relative w-full h-full rounded-xl overflow-hidden">
                         <Image
@@ -201,3 +212,4 @@ export default function DevProjects(): React.JSX.Element {
     </section>
   );
 }
+

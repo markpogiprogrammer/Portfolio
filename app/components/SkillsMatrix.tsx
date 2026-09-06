@@ -23,6 +23,7 @@ interface Skill {
 const skillsData: Skill[] = [
   // Testing & QA Tools
   { name: "Manual Testing (Smoke, Sanity, Regression, Black Box, Spot, E2E)", category: "qa", description: "End-to-end, black-box, smoke, sanity, regression, and spot testing across web, mobile, and hardware.", highlight: true },
+  { name: "Postman (API Testing)", category: "qa", description: "RESTful API endpoint validation, request/response payload verification, status code checks, auth flow testing, and collection runners.", highlight: true },
   { name: "Playwright with Gemini CLI", category: "qa", description: "Browser automation testing scripts integrated with Gemini CLI and AI workflows.", highlight: true },
   { name: "AI Agent Testing & Claude AI", category: "qa", description: "AI Agent testing research and automated test case generation using Claude AI.", highlight: true },
   { name: "Hardware & Physical Items QA", category: "qa", description: "Testing Ayala Malls parking hardware (ATM, Handheld, Exit QR) & BabyPlus physical item quality checking.", highlight: true },
@@ -111,7 +112,7 @@ export default function SkillsMatrix(): React.JSX.Element {
             <Search className="w-4 h-4 text-purple-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search skills, tools, or concepts (e.g. Playwright, Jira, AntiGravity IDE)..."
+              placeholder="Search skills, tools, or concepts (e.g. Postman, Playwright, Jira)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-11 pr-4 py-3 bg-slate-950/70 border border-purple-500/30 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all"

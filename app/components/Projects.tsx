@@ -16,7 +16,13 @@ const featuredProjects: Project[] = [
     link: "https://bitebalancever17.netlify.app/?fbclid=IwY2xjawQLlgFleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAEwAAEeB-Em3XiiI9y-IKdlIEzoSIbNmVi1CUqZgjicIuDhkbAOQRZ6Xd-Hau3Ni9I_aem_zrHWAniHNg7IJWPagpG-yA",
     image: "/projects/bitebalance1.png",
   },
-  
+  {
+    id: 2,
+    title: "Apartment Billing",
+    description: "An automated property and utility management system that eliminates manual water meter entry on Excel and Word. Automates the generation of ready-to-print bill sheets and official receipts, while centralizing tenant management, unit occupancy, and real-time total monthly income analytics.",
+    link: "https://github.com/markpogiprogrammer",
+    image: "/projects/apartment_billing.jpg",
+  }
 ];
 
 export default function Projects(): React.JSX.Element {
