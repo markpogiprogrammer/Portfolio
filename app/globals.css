@@ -1,14 +1,61 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   FROST — design tokens
+   Cool-white ground · optical glass · light-blue accents
+   All foreground colours are verified against --ground (#EEF3FA):
+     ink      15.6:1   ink-2   8.3:1   ink-3   4.8:1
+     accent    4.8:1   emerald 5.0:1   rust    6.6:1
+   ========================================================================== */
+
 :root {
-  --background: #110720;
-  --foreground: #ffffff;
+  --ground: #eef3fa;
+  --ground-deep: #e3ebf6;
+
+  --ink: #0a1626;
+  --ink-2: #35465c;
+  --ink-3: #5a6c82;
+
+  /* Light blue family.
+     --accent carries text and icons (4.8:1).
+     --sky is a surface-only colour — glows, borders, gradients. Never text. */
+  --accent: #0b6bcb;
+  --accent-deep: #0759a8;
+  --sky: #38bdf8;
+  --sky-soft: #bae6fd;
+
+  --emerald: #047857;
+  --rust: #9a3412;
+
+  --line: rgba(10, 22, 38, 0.09);
+  --line-strong: rgba(10, 22, 38, 0.16);
+
+  /* Motion. --ease-expo is the house curve for anything entering. */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-in: 620ms;
+  --dur-mid: 380ms;
+  --dur-fast: 240ms;
+
+  --header-h: 4.5rem;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-poppins), sans-serif;
+  --color-ground: var(--ground);
+  --color-ground-deep: var(--ground-deep);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-emerald: var(--emerald);
+  --color-rust: var(--rust);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
 }
 
 * {
@@ -17,92 +64,463 @@
 
 html {
   scroll-behavior: smooth;
+  /* Anchor targets clear the fixed header instead of hiding beneath it. */
+  scroll-padding-top: calc(var(--header-h) + 1.5rem);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
-  line-height: 1.6;
+  background-color: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* Custom Glow Scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
+/* Anchor targets must not sit under the fixed header. */
+[id] {
+  scroll-margin-top: calc(var(--header-h) + 1.5rem);
 }
 
-::-webkit-scrollbar-track {
-  background: #0d051a;
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+  text-wrap: balance;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.4);
-  border-radius: 5px;
-  border: 2px solid #0d051a;
+p {
+  text-wrap: pretty;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 85, 247, 0.8);
+/* Prose gets a comfortable measure — the single biggest readability lever. */
+.prose-measure {
+  max-width: 68ch;
 }
 
-/* Tech Glow Animations */
-@keyframes ambientGlow {
-  0%, 100% {
-    opacity: 0.4;
+::selection {
+  background: var(--sky-soft);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   Focus. Visible on every interactive element, never removed.
+   -------------------------------------------------------------------------- */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -140%);
+  z-index: 200;
+  padding: 0.75rem 1.25rem;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 24px -6px rgba(10, 22, 38, 0.25);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+}
+
+/* --------------------------------------------------------------------------
+   Glass. The specular top-edge highlight is what separates optical glass from
+   a flat translucent box — light catches the upper bevel, the lower edge
+   carries a faint shade instead.
+   -------------------------------------------------------------------------- */
+.glass {
+  position: relative;
+  background: linear-gradient(
+    170deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(255, 255, 255, 0.62) 55%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 0 rgba(10, 22, 38, 0.04),
+    0 1px 2px rgba(10, 22, 38, 0.04),
+    0 10px 30px -10px rgba(10, 22, 38, 0.12);
+}
+
+/* A one-pixel chromatic rim. Sits above the fill, below the content. */
+.glass-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    145deg,
+    rgba(56, 189, 248, 0.5),
+    rgba(255, 255, 255, 0.1) 38%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(11, 107, 203, 0.22)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.glass-hover {
+  transition:
+    transform var(--dur-mid) var(--ease-expo),
+    box-shadow var(--dur-mid) var(--ease-standard),
+    border-color var(--dur-mid) var(--ease-standard);
+}
+
+.glass-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 0 rgba(10, 22, 38, 0.04),
+    0 2px 4px rgba(10, 22, 38, 0.04),
+    0 20px 44px -14px rgba(11, 107, 203, 0.22);
+}
+
+/* Receding surface — for nested panels that must read as *inside* a panel. */
+.glass-inset {
+  background: linear-gradient(
+    170deg,
+    rgba(255, 255, 255, 0.58),
+    rgba(255, 255, 255, 0.34)
+  );
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform var(--dur-fast) var(--ease-expo),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.28) inset,
+    0 6px 18px -6px rgba(11, 107, 203, 0.55);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.28) inset,
+    0 12px 28px -8px rgba(11, 107, 203, 0.62);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Shimmer sweep — a specular highlight crossing the surface on hover. */
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.34) 50%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  transition: transform 720ms var(--ease-standard);
+  pointer-events: none;
+}
+
+.btn-primary:hover::after {
+  transform: translateX(120%);
+}
+
+.btn-secondary {
+  color: var(--accent-deep);
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(11, 107, 203, 0.24);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  color: var(--accent-deep);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(11, 107, 203, 0.42);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 10px 24px -10px rgba(11, 107, 203, 0.32);
+}
+
+.btn-ghost {
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.btn-ghost:hover {
+  color: var(--accent-deep);
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(11, 107, 203, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   Scroll reveal. Driven by IntersectionObserver via <Reveal>, which flips
+   data-revealed. Opacity + transform only — never width/height.
+
+   The hidden state is scoped to `.js` (set before first paint by an inline
+   script). Without JS the attribute is ignored and all content renders.
+   -------------------------------------------------------------------------- */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity var(--dur-in) var(--ease-expo),
+    transform var(--dur-in) var(--ease-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.js [data-reveal="left"] {
+  transform: translate3d(-24px, 0, 0);
+}
+
+.js [data-reveal="scale"] {
+  transform: translate3d(0, 16px, 0) scale(0.975);
+}
+
+.js [data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+  /* Release the compositor hint once the entrance has played. */
+  will-change: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Keyframes. Entrance motion only — no looping ambient animation, so nothing
+   competes with the content for attention.
+   -------------------------------------------------------------------------- */
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-drawer-in {
+  animation: drawer-in 340ms var(--ease-expo) both;
+}
+
+/* Panel content swap — tab changes and filtered re-renders. */
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-rise {
+  animation: fade-rise 420ms var(--ease-expo) both;
+}
+
+/* Availability dot — a slow, low-amplitude breathe rather than a hard ping. */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.7;
-    transform: scale(1.08);
+    opacity: 0.45;
+    transform: scale(0.82);
   }
 }
 
-.animate-ambient-glow {
-  animation: ambientGlow 8s ease-in-out infinite;
+.animate-breathe {
+  animation: breathe 3.2s var(--ease-standard) infinite;
 }
 
-@keyframes floatSlow {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
+/* --------------------------------------------------------------------------
+   Ambient field — the light the glass actually refracts.
+   -------------------------------------------------------------------------- */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.55;
+  will-change: transform;
+  transform: translate3d(0, var(--parallax-y, 0px), 0);
 }
 
-.animate-float {
-  animation: floatSlow 5s ease-in-out infinite;
+/* Fine noise stops the large gradients from banding on wide displays. */
+.noise::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Glassmorphism Card Base */
-.glass-card {
-  background: rgba(17, 7, 32, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(168, 85, 247, 0.15);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+/* --------------------------------------------------------------------------
+   Typographic helpers
+   -------------------------------------------------------------------------- */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(11, 107, 203, 0.2);
+  -webkit-backdrop-filter: blur(12px) saturate(170%);
+  backdrop-filter: blur(12px) saturate(170%);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
 }
 
-.glass-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.mono-meta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
-.glass-card-hover:hover {
-  border-color: rgba(168, 85, 247, 0.4);
-  box-shadow: 0 12px 40px 0 rgba(147, 51, 234, 0.25);
-  transform: translateY(-3px);
+.text-gradient-accent {
+  background: linear-gradient(
+    100deg,
+    var(--accent-deep) 0%,
+    var(--accent) 45%,
+    #0284c7 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
+/* --------------------------------------------------------------------------
+   Scrollbar
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ground-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0.65),
+    rgba(11, 107, 203, 0.55)
+  );
+  border-radius: 9999px;
+  border: 3px solid var(--ground-deep);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent), var(--accent-deep));
 }
 
 img {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion. Every entrance resolves to its final readable state; no
+   parallax, no shimmer, no drift.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal],
+  .js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .btn-primary::after {
+    display: none;
+  }
+
+  .orb {
+    transform: none !important;
+  }
 }

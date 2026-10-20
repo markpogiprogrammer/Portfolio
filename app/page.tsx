@@ -12,27 +12,33 @@ import TimelineAchievements from "./components/TimelineAchievements";
 import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
 import ResumeModal from "./components/ResumeModal";
+import ScrollFX from "./components/motion/ScrollFX";
 
 export default function Home(): React.JSX.Element {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
 
-  const handleOpenResume = () => setIsResumeOpen(true);
-  const handleCloseResume = () => setIsResumeOpen(false);
-
   return (
-    <main className="min-h-screen bg-[#110720] text-white selection:bg-purple-600 selection:text-white">
-      <Header onOpenResume={handleOpenResume} />
-      <Banner onOpenResume={handleOpenResume} />
-      <AboutDetailed />
-      <InternshipExperience />
-      <SkillsMatrix />
-      <DevProjects />
-      <QAShowcase />
-      <TimelineAchievements />
-      <ContactSection />
-      <Footer />
+    <>
+      <ScrollFX />
 
-      <ResumeModal isOpen={isResumeOpen} onClose={handleCloseResume} />
-    </main>
+      <Header onOpenResume={() => setIsResumeOpen(true)} />
+
+      <main id="main">
+        <Banner onOpenResume={() => setIsResumeOpen(true)} />
+        <AboutDetailed />
+        <InternshipExperience />
+        <SkillsMatrix />
+        <DevProjects />
+        <QAShowcase />
+        <TimelineAchievements />
+        <ContactSection />
+      </main>
+
+      <Footer />
+      <ResumeModal
+        isOpen={isResumeOpen}
+        onClose={() => setIsResumeOpen(false)}
+      />
+    </>
   );
 }

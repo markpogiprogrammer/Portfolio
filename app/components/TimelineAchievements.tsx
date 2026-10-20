@@ -1,171 +1,218 @@
 "use client";
 
-import { Award, GraduationCap, Star, Calendar, CheckCircle2, Trophy, Briefcase } from "lucide-react";
+import {
+  Award,
+  Briefcase,
+  Calendar,
+  CheckCircle2,
+  GraduationCap,
+  ShieldCheck,
+  Star,
+  Trophy,
+  Users,
+} from "lucide-react";
+import Reveal from "@/app/components/motion/Reveal";
+import { Orb, Panel, Section, SectionHeader } from "@/app/components/ui/primitives";
 
-interface TimelineEvent {
-  period: string;
-  title: string;
-  institution: string;
-  category: "capstone" | "deanslist" | "cert" | "academic" | "internship";
-  description: string;
-  details: string[];
-  badge: string;
-  icon: typeof Award;
-}
-
-const timelineEvents: TimelineEvent[] = [
+const TIMELINE = [
   {
-    period: "2025 - 2026",
-    title: "Nominated for Best Capstone Thesis (Capstone 1 & 2)",
-    institution: "De La Salle - College of Saint Benilde",
-    category: "capstone",
-    description:
-      "Researched, designed, and developed BiteBalance — a culturally relevant Progressive Web Application (PWA) incorporating Filipino food databases and AI-powered nutritional analysis.",
-    details: [
-      "Selected as one of the top nominated Capstone thesis projects in the Information Systems program",
-      "Lead developer & QA engineer for full-stack system architecture and user testing",
-      "Integrated machine learning models for personalized meal recommendations tailored to Filipino dietary habits"
-    ],
-    badge: "Best Thesis Nominee",
+    period: "Oct 9–10, 2026",
+    title: "AppBuildersPH Hackathon 2026",
+    institution: "Cerebral Valley Events",
+    badge: "Product Manager & QA",
     icon: Trophy,
-  },
-  {
-    period: "2023 - 2026",
-    title: "3x Dean's List Recipient",
-    institution: "De La Salle - College of Saint Benilde — School of Management and Information Technology",
-    category: "deanslist",
-    description:
-      "Earned 3-time Dean's List recognition for maintaining outstanding Grade Point Average (GPA) academic standing across core Information Systems courses.",
+    tone: "rust" as const,
+    body: "Gathered system requirements and executed manual testing alongside AI tools to verify a local AI product's functionality.",
     details: [
-      "Consistently achieved high academic marks in Systems Analysis & Design, Database Management, and Enterprise Architecture",
-      "Demonstrated academic excellence and disciplined time management while balancing IT projects and fitness research"
+      "Worked as product manager and QA on a local AI application during a two-day build",
+      "Drafted requirements and validated functionality with a mix of manual and AI-assisted testing",
     ],
-    badge: "3x Recipient",
-    icon: Star,
   },
   {
-    period: "2022 - 2026 (Present)",
-    title: "Bachelor of Science in Information Systems",
-    institution: "De La Salle - College of Saint Benilde",
-    category: "academic",
-    description:
-      "Candidate for Graduation ('26). Specialized coursework in Software Quality Assurance, Software Testing, Information Security, Relational Databases, and Full-Stack Web Engineering.",
+    period: "Oct 2026",
+    title: "Business Analysis & Process Management",
+    institution: "Coursera",
+    badge: "Certification",
+    icon: Award,
+    tone: "accent" as const,
+    body: "Coursework in business analysis and process management, directly reinforcing the systems analysis side of QA work.",
     details: [
-      "Core Competencies: Software Testing, Quality Assurance, Test Suite Design, SQL Server Management, C#, React.js, Security Fundamentals",
-      "Active participant in academic technology seminars and peer review workshops"
+      "Requirement gathering, stakeholder processes, and workflow analysis",
     ],
-    badge: "Expected Grad 2026",
-    icon: GraduationCap,
   },
   {
-    period: "June 5 to September 8, 2026",
+    period: "Jun 5 – Sep 18, 2026",
     title: "Junior QA Internship",
     institution: "Circuit Solutions Inc. — Ortigas, Pasig City",
-    category: "internship",
-    description:
-      "Completed a 500-hour comprehensive Quality Assurance practicum performing manual testing, hardware QA, data reconciliation, user documentation, and AI automation research.",
-    details: [
-      "Executed End-to-End, Black Box, Smoke, Sanity, Regression, and Spot Testing for enterprise web portals, mobile apps, and parking hardware",
-      "Authored multi-company user manuals, cheat sheets, and Knowledge Base Wikis alongside visual Jira and Excel defect logs",
-      "Explored browser test automation with Playwright & Gemini CLI and AI test case generation via Claude AI"
-    ],
     badge: "500 Hours Practicum",
     icon: Briefcase,
-  }
+    tone: "emerald" as const,
+    body: "Completed a 500-hour quality assurance practicum covering manual testing, hardware QA, data reconciliation, user documentation, and AI automation research.",
+    details: [
+      "Executed end-to-end, black box, smoke, sanity, regression, and spot testing across web portals, mobile apps, and parking hardware",
+      "Authored multi-company user manuals, cheat sheets, and knowledge base wikis alongside Jira and Excel defect logs",
+      "Explored browser automation with Playwright and Gemini CLI, and AI test case generation with Claude",
+    ],
+  },
+  {
+    period: "2025 – 2026",
+    title: "Nominated for Best Capstone Thesis",
+    institution: "De La Salle – College of Saint Benilde",
+    badge: "Best Thesis Nominee",
+    icon: Trophy,
+    tone: "rust" as const,
+    body: "Researched, designed, and developed BiteBalance — a culturally relevant progressive web application incorporating Filipino food databases and AI-powered nutritional analysis.",
+    details: [
+      "Selected as one of the top nominated capstone projects in the Information Systems program",
+      "Lead developer and QA engineer for full-stack architecture and user testing",
+      "Integrated machine learning models for meal recommendations suited to Filipino dietary habits",
+    ],
+  },
+  {
+    period: "2023 – 2026",
+    title: "3× Dean's List Recipient",
+    institution: "School of Management and Information Technology",
+    badge: "3× Recipient",
+    icon: Star,
+    tone: "accent" as const,
+    body: "Earned three consecutive Dean's List recognitions for maintaining outstanding academic standing across core Information Systems coursework.",
+    details: [
+      "Consistently high marks in Systems Analysis, Database Management, and Enterprise Architecture",
+      "Maintained academic excellence while balancing IT projects and fitness research",
+    ],
+  },
+  {
+    period: "2022 – 2023",
+    title: "Certifications & Trainings",
+    institution: "Amazon Web Services Academy · Marine Base Ternate Cavite",
+    badge: "2 Credentials",
+    icon: ShieldCheck,
+    tone: "accent" as const,
+    body: "Cloud fundamentals and military discipline training.",
+    details: [
+      "AWS Cloud Foundations — Amazon Web Services Academy, August 2023",
+      "Basic Citizen Military Course Class 02-2022 — Marine Base Ternate, Cavite, May 2022",
+    ],
+  },
+  {
+    period: "2022 – 2026",
+    title: "BS Information Systems",
+    institution: "De La Salle – College of Saint Benilde",
+    badge: "Expected Grad 2026",
+    icon: GraduationCap,
+    tone: "accent" as const,
+    body: "Coursework across Software Quality Assurance, Software Testing, Information Security, Relational Databases, and Full-Stack Web Engineering.",
+    details: [
+      "Core competencies: software testing, test suite design, SQL Server, C#, React, security fundamentals",
+      "Member, Google Development Student Club Benilde — October to December 2022",
+    ],
+  },
+  {
+    period: "2021 – 2024",
+    title: "Community Engagement",
+    institution: "Metro Manila, Quezon City & Rizal",
+    badge: "4 Programs",
+    icon: Users,
+    tone: "emerald" as const,
+    body: "Volunteer across feeding, dental outreach, and animal welfare programs.",
+    details: [
+      "Annual Christmas Feeding Program, Metro Manila",
+      "Operation Tuli and Bunot Ngipin — Camp General Emilio Aguinaldo High School, Quezon City, July 2024",
+      "Alpha Kawanggawa sa Eskwela, Pililia, Rizal — May 2021",
+      "Free Anti-Rabies Shot for Pets — MollyCoddle Animal Vaccination Services, Sta. Ana, November 2021",
+    ],
+  },
 ];
 
 export default function TimelineAchievements(): React.JSX.Element {
   return (
-    <section id="timeline" className="py-24 px-4 sm:px-6 relative bg-[#110720]">
-      {/* Background glow */}
-      <div className="absolute top-1/2 left-10 w-96 h-96 bg-purple-900/10 rounded-full blur-[120px] pointer-events-none" />
+    <Section
+      id="timeline"
+      orbs={
+        <>
+          <Orb className="-left-32 top-1/3 h-[28rem] w-[28rem]" color="from-accent/20" />
+          <Orb className="-right-24 top-10 h-[24rem] w-[24rem]" color="from-sky/25" />
+        </>
+      }
+    >
+      <SectionHeader
+        eyebrow="Milestones & Credentials"
+        eyebrowIcon={Award}
+        title="Career"
+        highlight="Timeline & Honors"
+        lede="Academic achievements, a capstone nomination, certifications, hackathon work, and community engagement."
+      />
 
-      <div className="container mx-auto max-w-6xl relative z-10">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider">
-            <Award className="w-3.5 h-3.5" />
-            <span>Academic Milestones &amp; Honors</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Academic <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">Timeline &amp; Honors</span>
-          </h2>
-          <p className="text-base sm:text-lg text-white/70 leading-relaxed">
-            Key academic achievements, Dean&apos;s List recognitions, Capstone Best Thesis nominations, and technical milestones at Benilde.
-          </p>
-        </div>
+      <div className="relative">
+        {/* Track. Hidden from assistive tech — it carries no information. */}
+        <div
+          aria-hidden="true"
+          className="absolute left-[1.125rem] top-2 bottom-2 w-px bg-gradient-to-b from-accent/40 via-accent/20 to-transparent"
+        />
 
-        {/* Vertical Timeline Track */}
-        <div className="relative border-l-2 border-purple-500/30 ml-4 sm:ml-8 md:ml-32 space-y-12 pl-6 sm:pl-10">
-          {timelineEvents.map((event, idx) => {
+        <ol className="space-y-8">
+          {TIMELINE.map((event, i) => {
             const Icon = event.icon;
-
             return (
-              <div key={idx} className="relative group">
-                
-                {/* Glowing Node Marker on Line */}
-                <div className="absolute -left-[31px] sm:-left-[47px] top-1.5 w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-800 border-2 border-[#110720] shadow-lg shadow-purple-900/50 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                  <Icon className="w-5 h-5" />
-                </div>
+              <Reveal as="li" key={event.title} delay={i * 70} className="relative pl-12">
+                {/* Node */}
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-4 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-sky to-accent text-white shadow-[0_4px_14px_-4px_rgba(11,107,203,0.7)]"
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
 
-                {/* Period Badge for larger screens */}
-                <div className="hidden md:block absolute -left-48 top-2 text-right w-36">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold text-purple-300 bg-purple-950/80 border border-purple-500/30 inline-flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>{event.period}</span>
+                {/* Period sits above the card at every width. An absolutely
+                    positioned left column was clipped by the viewport edge
+                    between sm and lg, so it stays in flow. */}
+                <div className="mb-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-white/70 px-3 py-1 font-mono text-[11px] font-medium tracking-wide text-accent-deep backdrop-blur-md">
+                    <Calendar className="h-3 w-3" />
+                    {event.period}
                   </span>
                 </div>
 
-                {/* Main Event Content Card */}
-                <div className="glass-card rounded-3xl p-6 sm:p-8 border border-purple-500/20 shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-purple-400 hover:shadow-purple-900/30 space-y-4">
-                  
-                  {/* Period for mobile screens */}
-                  <div className="md:hidden inline-block mb-1">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold text-purple-300 bg-purple-950/80 border border-purple-500/30 inline-flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>{event.period}</span>
-                    </span>
-                  </div>
-
+                <Panel className="p-5 sm:p-7">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-extrabold text-white group-hover:text-purple-300 transition-colors">
+                      <h3 className="font-display text-xl font-semibold sm:text-2xl">
                         {event.title}
                       </h3>
-                      <p className="text-xs sm:text-sm font-semibold text-purple-400 mt-0.5">
+                      <p className="mt-1 text-sm font-medium text-accent-deep">
                         {event.institution}
                       </p>
                     </div>
-
-                    <span className="px-3 py-1 rounded-full text-xs font-bold text-amber-300 bg-amber-950/80 border border-amber-500/40 uppercase tracking-wider flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
-                      <span>{event.badge}</span>
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10.5px] font-medium tracking-wider uppercase ${
+                        event.tone === "rust"
+                          ? "border-rust/20 bg-rust/[0.07] text-rust"
+                          : event.tone === "emerald"
+                            ? "border-emerald/25 bg-emerald/[0.08] text-emerald"
+                            : "border-accent/20 bg-accent/[0.07] text-accent-deep"
+                      }`}
+                    >
+                      <Star className="h-3 w-3 fill-current" />
+                      {event.badge}
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
-                    {event.description}
-                  </p>
+                  <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{event.body}</p>
 
-                  {/* Bullet Details */}
-                  <div className="pt-2 border-t border-white/5 space-y-2">
-                    {event.details.map((detail, dIdx) => (
-                      <div key={dIdx} className="flex items-start gap-2.5 text-xs text-white/75">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <ul className="mt-4 space-y-2 border-t border-ink/[0.07] pt-4">
+                    {event.details.map((detail) => (
+                      <li key={detail} className="flex items-start gap-2.5 text-sm leading-relaxed text-ink-2">
+                        <CheckCircle2 className="mt-[0.2rem] h-4 w-4 shrink-0 text-emerald" />
                         <span>{detail}</span>
-                      </div>
+                      </li>
                     ))}
-                  </div>
-
-                </div>
-
-              </div>
+                  </ul>
+                </Panel>
+              </Reveal>
             );
           })}
-        </div>
-
+        </ol>
       </div>
-    </section>
+    </Section>
   );
 }

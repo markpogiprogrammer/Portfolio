@@ -1,283 +1,363 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Send, CheckCircle2, AlertCircle, MapPin } from "lucide-react";
-import { GithubIcon, LinkedinIcon, InstagramIcon, FacebookIcon } from "./SocialIcons";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Mail,
+  MapPin,
+  Send,
+} from "lucide-react";
+import Reveal from "@/app/components/motion/Reveal";
+import {
+  Orb,
+  Panel,
+  Section,
+  SectionHeader,
+} from "@/app/components/ui/primitives";
+import { SOCIALS } from "@/app/lib/social";
+
+interface FormState {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+type Errors = Partial<Record<keyof FormState, string>>;
+
+const inputClass =
+  "w-full rounded-xl border border-white/70 bg-white/70 px-4 py-3 text-[15px] text-ink shadow-[inset_0_1px_0_0_rgba(255,255,255,0.9)] backdrop-blur-md transition-colors placeholder:text-ink-3 focus:outline-none";
 
 export default function ContactSection(): React.JSX.Element {
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState<FormState>({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
+  const [errors, setErrors] = useState<Errors>({});
+  const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
 
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+    // Clear a field's error as soon as the visitor starts fixing it.
+    if (errors[name as keyof FormState]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validate = (): Errors => {
+    const next: Errors = {};
+    if (!form.name.trim()) next.name = "Please enter your name.";
+    if (!form.email.trim()) next.email = "Please enter your email address.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim()))
+      next.email = "That doesn't look like a valid email address.";
+    if (!form.message.trim()) next.message = "Please add a short message.";
+    return next;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.message) {
-      setStatus("error");
-      setErrorMessage("Please fill in all required fields (Name, Email, Message).");
-      return;
-    }
-
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setStatus("error");
-      setErrorMessage("Please enter a valid email address.");
+    const next = validate();
+    setErrors(next);
+    if (Object.keys(next).length > 0) {
+      // Move focus to the first invalid control.
+      const first = Object.keys(next)[0];
+      document.getElementById(first)?.focus();
       return;
     }
 
     setStatus("submitting");
 
-    const emailSubject = encodeURIComponent(
-      formData.subject || `Inquiry from ${formData.name} via Portfolio`
+    const subject = encodeURIComponent(
+      form.subject.trim() || `Inquiry from ${form.name.trim()} via Portfolio`,
     );
-    const emailBody = encodeURIComponent(
-      `Hello Mark,\n\nName: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+    const body = encodeURIComponent(
+      `Hello Mark,\n\nName: ${form.name.trim()}\nEmail: ${form.email.trim()}\n\nMessage:\n${form.message.trim()}`,
     );
 
-    const mailtoUrl = `mailto:markoliverquiazon@gmail.com?subject=${emailSubject}&body=${emailBody}`;
-
-    // Trigger default email client addressed to markoliverquiazon@gmail.com
-    window.location.href = mailtoUrl;
+    window.location.href = `mailto:markoliverquiazon@gmail.com?subject=${subject}&body=${body}`;
 
     setTimeout(() => {
       setStatus("success");
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 800);
+      setForm({ name: "", email: "", subject: "", message: "" });
+    }, 700);
   };
 
+  const errorList = Object.values(errors).filter(Boolean);
+
   return (
-    <section id="contact" className="py-24 px-4 sm:px-6 relative bg-gradient-to-b from-[#110720] via-[#0d051a] to-[#0a0314]">
-      {/* Background glow */}
-      <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-purple-900/10 rounded-full blur-[120px] pointer-events-none" />
+    <Section
+      id="contact"
+      className="pb-28"
+      orbs={
+        <>
+          <Orb className="-right-28 top-10 h-[30rem] w-[30rem]" color="from-accent/22" />
+          <Orb className="-left-28 bottom-0 h-[26rem] w-[26rem]" color="from-sky/25" />
+        </>
+      }
+    >
+      <SectionHeader
+        eyebrow="Direct Communication"
+        eyebrowIcon={Mail}
+        title="Get in"
+        highlight="Touch"
+        lede="Hiring for a Software QA, test automation, or systems QA role? Send a message or reach out directly — I read everything."
+      />
 
-      <div className="container mx-auto max-w-7xl relative z-10">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider">
-            <Mail className="w-3.5 h-3.5" />
-            <span>Initiate Direct Communication</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Get in <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">Touch</span>
-          </h2>
-          <p className="text-base sm:text-lg text-white/70 leading-relaxed">
-            Interested in hiring me for a Software QA, Test Automation, or Systems QA role? Feel free to send an email or connect directly.
-          </p>
-        </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {/* Details */}
+        <Reveal className="lg:col-span-5">
+          <Panel className="flex h-full flex-col gap-6 p-6 sm:p-7">
+            <h3 className="font-display text-xl font-semibold">Contact Information</h3>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          
-          {/* Left Column: Direct Info & Social Cards */}
-          <div className="lg:col-span-5 space-y-6">
-            
-            <div className="glass-card rounded-3xl p-6 sm:p-8 border border-purple-500/20 shadow-xl space-y-6">
-              <h3 className="text-2xl font-bold text-white">Contact Information</h3>
-              
-              <div className="space-y-4">
-                <a
-                  href="mailto:markoliverquiazon@gmail.com"
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-purple-950/40 border border-purple-500/20 hover:border-purple-400 transition-all group"
-                >
-                  <div className="p-3 rounded-xl bg-purple-900/50 text-purple-300 group-hover:scale-110 transition-transform">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-semibold text-purple-300/80 uppercase block">Direct Email</span>
-                    <span className="text-sm sm:text-base font-bold text-white group-hover:text-purple-300 transition-colors">
-                      markoliverquiazon@gmail.com
-                    </span>
-                  </div>
-                </a>
+            <div className="space-y-3">
+              <a
+                href="mailto:markoliverquiazon@gmail.com"
+                className="glass-inset group flex items-center gap-3.5 rounded-2xl p-4 transition-all duration-300 hover:bg-white/70"
+              >
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent-deep transition-transform duration-300 group-hover:scale-105">
+                  <Mail className="h-4.5 w-4.5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="mono-meta block text-accent-deep">Direct email</span>
+                  <span className="block truncate text-[15px] font-semibold text-ink transition-colors group-hover:text-accent-deep">
+                    markoliverquiazon@gmail.com
+                  </span>
+                </span>
+              </a>
 
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-purple-950/40 border border-purple-500/20">
-                  <div className="p-3 rounded-xl bg-purple-900/50 text-purple-300">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-semibold text-purple-300/80 uppercase block">Location</span>
-                    <span className="text-sm font-bold text-white">
-                      Metro Manila, Philippines
-                    </span>
-                  </div>
-                </div>
+              <div className="glass-inset flex items-center gap-3.5 rounded-2xl p-4">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent-deep">
+                  <MapPin className="h-4.5 w-4.5" />
+                </span>
+                <span>
+                  <span className="mono-meta block text-accent-deep">Location</span>
+                  <span className="block text-[15px] font-semibold text-ink">
+                    Metro Manila, Philippines
+                  </span>
+                </span>
               </div>
-
-              {/* Social Channels */}
-              <div className="pt-4 border-t border-white/10 space-y-3">
-                <h4 className="text-xs font-bold text-white/80 uppercase tracking-wider">
-                  Professional &amp; Social Channels
-                </h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <a
-                    href="https://www.linkedin.com/in/mark-quiazon-b65588290"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 hover:border-purple-500/40 text-xs font-semibold text-white transition-all"
-                  >
-                    <LinkedinIcon className="w-4 h-4 text-blue-400" />
-                    <span>LinkedIn</span>
-                  </a>
-
-                  <a
-                    href="https://github.com/markpogiprogrammer"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 hover:border-purple-500/40 text-xs font-semibold text-white transition-all"
-                  >
-                    <GithubIcon className="w-4 h-4 text-purple-400" />
-                    <span>GitHub</span>
-                  </a>
-
-                  <a
-                    href="https://www.instagram.com/qznmark/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 hover:border-purple-500/40 text-xs font-semibold text-white transition-all"
-                  >
-                    <InstagramIcon className="w-4 h-4 text-pink-400" />
-                    <span>Instagram</span>
-                  </a>
-
-                  <a
-                    href="https://www.facebook.com/mark6god/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 hover:border-purple-500/40 text-xs font-semibold text-white transition-all"
-                  >
-                    <FacebookIcon className="w-4 h-4 text-blue-500" />
-                    <span>Facebook</span>
-                  </a>
-                </div>
-              </div>
-
             </div>
 
-          </div>
-
-          {/* Right Column: Interactive Email Form */}
-          <div className="lg:col-span-7">
-            <div className="glass-card rounded-3xl p-6 sm:p-8 border border-purple-500/20 shadow-2xl space-y-6">
-              
-              <div>
-                <h3 className="text-2xl font-bold text-white">Send Me an Email</h3>
-                <p className="text-xs text-white/70 mt-1">
-                  Submit your inquiry or opportunity to open an email draft directly to markoliverquiazon@gmail.com.
-                </p>
+            <div className="mt-auto space-y-3 border-t border-ink/[0.07] pt-5">
+              <h4 className="mono-meta text-ink-3">Professional channels</h4>
+              <div className="grid grid-cols-2 gap-2.5">
+                {SOCIALS.map(({ href, label, Icon, tone }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 rounded-xl border border-white/70 bg-white/60 px-3.5 py-2.5 text-[13px] font-semibold text-ink-2 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-ink"
+                  >
+                    <Icon className={`h-4 w-4 shrink-0 ${tone}`} />
+                    {label}
+                  </a>
+                ))}
               </div>
+            </div>
+          </Panel>
+        </Reveal>
 
-              {status === "error" && (
-                <div className="p-4 rounded-xl bg-red-950/80 border border-red-500/40 text-red-200 text-xs flex items-center gap-2.5 animate-fadeIn">
-                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                  <span>{errorMessage}</span>
+        {/* Form */}
+        <Reveal delay={90} className="lg:col-span-7">
+          <Panel className="h-full p-6 sm:p-7" hover={false}>
+            <h3 className="font-display text-xl font-semibold">Send a message</h3>
+            <p className="mt-1 text-sm text-ink-2">
+              Opens a pre-filled draft in your email client addressed to{" "}
+              <span className="font-medium text-ink">markoliverquiazon@gmail.com</span>.
+            </p>
+
+            {/* Error summary — announced, and links to the offending field. */}
+            {errorList.length > 0 && (
+              <div
+                role="alert"
+                className="mt-5 flex gap-2.5 rounded-xl border border-rust/25 bg-rust/[0.06] p-3.5 text-sm text-rust animate-fade-rise"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p className="font-semibold">
+                    {errorList.length === 1
+                      ? "One field needs attention"
+                      : `${errorList.length} fields need attention`}
+                  </p>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                    {errorList.map((message) => (
+                      <li key={message}>{message}</li>
+                    ))}
+                  </ul>
                 </div>
-              )}
+              </div>
+            )}
 
-              {status === "success" && (
-                <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs space-y-2 animate-fadeIn">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span className="font-semibold">Your email client has been prepared!</span>
-                  </div>
-                  <p className="text-white/80 text-[11px]">
-                    If your email app did not open automatically, click here to send directly to{" "}
-                    <a href="mailto:markoliverquiazon@gmail.com" className="underline text-emerald-300 font-bold">
-                      markoliverquiazon@gmail.com
-                    </a>.
+            {status === "success" && (
+              <div
+                role="status"
+                className="mt-5 flex gap-2.5 rounded-xl border border-emerald/25 bg-emerald/[0.07] p-3.5 text-sm text-emerald animate-fade-rise"
+              >
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p className="font-semibold">Your email client is opening.</p>
+                  <p className="mt-1 text-ink-2">
+                    If nothing happened,{" "}
+                    <a
+                      href="mailto:markoliverquiazon@gmail.com"
+                      className="font-semibold text-emerald underline underline-offset-2"
+                    >
+                      send it directly
+                    </a>
+                    .
                   </p>
                 </div>
-              )}
+              </div>
+            )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="name" className="text-xs font-semibold text-white/80">
-                      Your Full Name <span className="text-purple-400">*</span>
-                    </label>
+            <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field
+                  id="name"
+                  label="Your full name"
+                  required
+                  error={errors.name}
+                  input={
                     <input
-                      type="text"
                       id="name"
                       name="name"
+                      type="text"
+                      autoComplete="name"
                       placeholder="e.g. Alex Santos"
-                      value={formData.name}
+                      value={form.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-slate-950/80 border border-purple-500/20 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-purple-400 transition-all"
+                      aria-invalid={Boolean(errors.name)}
+                      aria-describedby={errors.name ? "name-error" : undefined}
+                      className={`${inputClass} ${
+                        errors.name ? "border-rust/50" : "focus:border-accent/45"
+                      }`}
                     />
-                  </div>
+                  }
+                />
 
-                  <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-xs font-semibold text-white/80">
-                      Email Address <span className="text-purple-400">*</span>
-                    </label>
+                <Field
+                  id="email"
+                  label="Email address"
+                  required
+                  error={errors.email}
+                  input={
                     <input
-                      type="email"
                       id="email"
                       name="email"
+                      type="email"
+                      autoComplete="email"
                       placeholder="e.g. alex@company.com"
-                      value={formData.email}
+                      value={form.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-slate-950/80 border border-purple-500/20 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-purple-400 transition-all"
+                      aria-invalid={Boolean(errors.email)}
+                      aria-describedby={errors.email ? "email-error" : undefined}
+                      className={`${inputClass} ${
+                        errors.email ? "border-rust/50" : "focus:border-accent/45"
+                      }`}
                     />
-                  </div>
-                </div>
+                  }
+                />
+              </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="subject" className="text-xs font-semibold text-white/80">
-                    Subject
-                  </label>
+              <Field
+                id="subject"
+                label="Subject"
+                hint="Optional"
+                input={
                   <input
-                    type="text"
                     id="subject"
                     name="subject"
+                    type="text"
                     placeholder="e.g. QA / Software Testing Opportunity"
-                    value={formData.subject}
+                    value={form.subject}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-slate-950/80 border border-purple-500/20 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-purple-400 transition-all"
+                    className={`${inputClass} focus:border-accent/45`}
                   />
-                </div>
+                }
+              />
 
-                <div className="space-y-1.5">
-                  <label htmlFor="message" className="text-xs font-semibold text-white/80">
-                    Message <span className="text-purple-400">*</span>
-                  </label>
+              <Field
+                id="message"
+                label="Message"
+                required
+                error={errors.message}
+                input={
                   <textarea
                     id="message"
                     name="message"
                     rows={5}
-                    placeholder="Share role specifications, project details, or inquiry..."
-                    value={formData.message}
+                    placeholder="Share role specifications, project details, or an inquiry…"
+                    value={form.message}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-slate-950/80 border border-purple-500/20 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-purple-400 transition-all resize-none"
+                    aria-invalid={Boolean(errors.message)}
+                    aria-describedby={errors.message ? "message-error" : undefined}
+                    className={`${inputClass} resize-none ${
+                      errors.message ? "border-rust/50" : "focus:border-accent/45"
+                    }`}
                   />
-                </div>
+                }
+              />
 
-                <button
-                  type="submit"
-                  disabled={status === "submitting"}
-                  className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-purple-950/60 transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>{status === "submitting" ? "Opening Email Client..." : "Send Email"}</span>
-                </button>
-
-              </form>
-
-            </div>
-          </div>
-
-        </div>
-
+              <button
+                type="submit"
+                disabled={status === "submitting"}
+                className="btn btn-primary w-full disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <Send className="h-4 w-4" />
+                {status === "submitting" ? "Opening email client…" : "Send Email"}
+              </button>
+            </form>
+          </Panel>
+        </Reveal>
       </div>
-    </section>
+    </Section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+function Field({
+  id,
+  label,
+  required,
+  hint,
+  error,
+  input,
+}: {
+  id: string;
+  label: string;
+  required?: boolean;
+  hint?: string;
+  error?: string;
+  input: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={id} className="flex items-baseline gap-2 text-[13px] font-semibold text-ink-2">
+        {label}
+        {required ? (
+          <span className="text-accent" aria-hidden="true">
+            *
+          </span>
+        ) : (
+          <span className="mono-meta font-normal text-ink-3">{hint}</span>
+        )}
+      </label>
+      {input}
+      {error && (
+        <p id={`${id}-error`} className="flex items-center gap-1.5 text-[13px] text-rust">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

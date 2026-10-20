@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X, FileText, ShieldCheck, Code, Award, User, Mail, Sparkles, Building2 } from "lucide-react";
+import { FileText, Menu, X } from "lucide-react";
+import { SECTIONS } from "@/app/lib/sections";
+import { RESUME_URL } from "@/app/lib/resume";
 
 interface HeaderProps {
   onOpenResume?: () => void;
@@ -11,29 +13,55 @@ interface HeaderProps {
 export default function Header({ onOpenResume }: HeaderProps = {}): React.JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeId, setActiveId] = useState("home");
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 16);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems = [
-    { label: "Home", href: "#home", icon: Sparkles },
-    { label: "About", href: "#about", icon: User },
-    { label: "Internship", href: "#internship", icon: Building2 },
-    { label: "Skills", href: "#skills", icon: Code },
-    { label: "Dev Projects", href: "#dev-projects", icon: Code },
-    { label: "QA Showcase", href: "#qa-showcase", icon: ShieldCheck },
-    { label: "Timeline", href: "#timeline", icon: Award },
-    { label: "Contact", href: "#contact", icon: Mail },
-  ];
+  // Active section via IntersectionObserver, independent of ScrollFX so the
+  // header does not depend on sibling render order.
+  useEffect(() => {
+    const nodes = SECTIONS.map((s) => document.getElementById(s.id)).filter(
+      (el): el is HTMLElement => Boolean(el),
+    );
+    if (!nodes.length || typeof IntersectionObserver === "undefined") return;
+
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
+        }
+        // Document order is the source of truth when sections overlap the band.
+        const first = SECTIONS.find((s) => visible.has(s.id));
+        if (first) setActiveId(first.id);
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 },
+    );
+
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
+
+  // Lock the page behind the drawer and close on Escape.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [mobileMenuOpen]);
 
   const handleResumeClick = (e: React.MouseEvent) => {
     if (onOpenResume) {
@@ -43,111 +71,158 @@ export default function Header({ onOpenResume }: HeaderProps = {}): React.JSX.El
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-[#110720]/90 backdrop-blur-md border-b border-purple-500/20 py-3 shadow-lg shadow-purple-950/20"
-          : "bg-[#110720]/50 backdrop-blur-sm border-b border-white/5 py-4"
+    <>
+      <a href="#main" className="skip-link">
+        Skip to main content
+      </a>
+
+      <header
+        className={`fixed inset-x-0 top-0 z-[70] transition-all duration-300 ease-out ${
+          isScrolled
+            ? "border-b border-white/70 bg-white/70 shadow-[0_1px_0_rgba(10,22,38,0.04),0_8px_28px_-16px_rgba(10,22,38,0.25)] backdrop-blur-xl backdrop-saturate-150"
+            : "border-b border-transparent bg-white/30 backdrop-blur-md backdrop-saturate-150"
         }`}
-    >
-      <nav className="container mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between">
-        {/* Brand Monogram Logo */}
-        <Link
-          href="#home"
-          className="flex items-center gap-3 group focus:outline-none"
+      >
+        <nav
+          aria-label="Primary"
+          className="mx-auto flex h-[var(--header-h)] max-w-6xl items-center justify-between gap-4 px-5 sm:px-6"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-800 p-0.5 shadow-md shadow-violet-600/30 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-            <div className="w-full h-full bg-[#110720] rounded-[10px] flex items-center justify-center">
-              <span className="font-extrabold text-lg bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
+          {/* Brand */}
+          <Link
+            href="#home"
+            className="group flex shrink-0 items-center gap-2.5 rounded-xl"
+          >
+            <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-sky via-accent to-accent-deep shadow-[0_4px_14px_-4px_rgba(11,107,203,0.6)] transition-transform duration-300 group-hover:scale-105">
+              <span className="font-display text-[15px] font-bold tracking-tight text-white">
                 MQ
               </span>
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-white tracking-wide text-base group-hover:text-purple-300 transition-colors">
-              MARK QUIAZON
             </span>
-            <span className="text-[10px] text-purple-400/80 tracking-wider uppercase font-semibold">
-              Software QA Tester
+            <span className="flex flex-col leading-none">
+              <span className="font-display text-[15px] font-bold tracking-tight transition-colors group-hover:text-accent-deep">
+                Mark Quiazon
+              </span>
+              <span className="mt-1 font-mono text-[10px] font-medium tracking-[0.1em] text-ink-3 uppercase">
+                Software QA
+              </span>
             </span>
-          </div>
-        </Link>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <ul className="hidden xl:flex items-center gap-1 list-none m-0 p-0">
-          {navItems.map((item) => (
-            <li key={item.label}>
-              <Link
-                href={item.href}
-                className="relative px-3.5 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors duration-200 flex items-center gap-1.5 rounded-lg hover:bg-violet-900/30 group"
-              >
-                <span>{item.label}</span>
-
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        {/* Action Button & Mobile Toggle */}
-        <div className="flex items-center gap-3">
-          <a
-            href="/Mark Oliver Quiazon - Resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleResumeClick}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 rounded-lg shadow-md shadow-purple-900/40 hover:shadow-purple-700/50 transition-all duration-200 transform hover:scale-105 cursor-pointer"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Resume</span>
-          </a>
-
-          {/* Mobile Hamburger Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 focus:outline-none"
-            aria-label="Toggle Navigation Menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#110720]/95 backdrop-blur-xl border-b border-purple-500/20 px-6 py-6 transition-all duration-300 shadow-2xl">
-          <div className="flex flex-col gap-3">
-            {navItems.map((item) => {
-              const Icon = item.icon;
+          {/* Desktop navigation */}
+          <ul className="hidden items-center gap-0.5 lg:flex">
+            {SECTIONS.map((item) => {
+              const isActive = activeId === item.id;
               return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-4 py-3 text-sm font-medium text-white/90 hover:text-white bg-white/5 hover:bg-violet-900/40 rounded-xl border border-white/5 hover:border-purple-500/30 transition-all"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 text-purple-400" />
-                    <span>{item.label}</span>
-                  </div>
-
-                </Link>
+                <li key={item.id}>
+                  <Link
+                    href={`#${item.id}`}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`relative rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-200 ${
+                      isActive
+                        ? "text-accent-deep"
+                        : "text-ink-2 hover:text-ink hover:bg-white/60"
+                    }`}
+                  >
+                    {item.label}
+                    {/* Underline wipes in from the left on activation. */}
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-x-2.5 -bottom-0.5 h-px origin-left bg-accent-deep transition-transform duration-300 ease-out ${
+                        isActive ? "scale-x-100" : "scale-x-0"
+                      }`}
+                    />
+                  </Link>
+                </li>
               );
             })}
+          </ul>
+
+          {/* Actions */}
+          <div className="flex shrink-0 items-center gap-2">
             <a
-              href="/Mark Oliver Quiazon - Resume.pdf"
+              href={RESUME_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleResumeClick}
+              className="btn btn-primary hidden sm:inline-flex !min-h-10 !px-4 !py-2 !text-[13px]"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Resume
+            </a>
+
+            <button
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              className="grid h-10 w-10 place-items-center rounded-xl border border-white/70 bg-white/70 text-ink shadow-[inset_0_1px_0_0_rgba(255,255,255,0.9)] backdrop-blur-md transition-colors hover:bg-white lg:hidden"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5 text-accent-deep" />
+              ) : (
+                <Menu className="h-5 w-5 text-accent-deep" />
+              )}
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Mobile drawer */}
+      {mobileMenuOpen && (
+        <div
+          id="mobile-nav"
+          className="fixed inset-x-0 top-[var(--header-h)] bottom-0 z-[65] overflow-y-auto border-t border-white/70 bg-white/85 backdrop-blur-2xl backdrop-saturate-150 lg:hidden"
+        >
+          <nav aria-label="Mobile" className="mx-auto max-w-6xl px-5 py-6">
+            <ul className="flex flex-col gap-1.5">
+              {SECTIONS.map((item, i) => {
+                const Icon = item.icon;
+                const isActive = activeId === item.id;
+                return (
+                  <li
+                    key={item.id}
+                    className="animate-drawer-in"
+                    style={{ animationDelay: `${i * 45}ms` }}
+                  >
+                    <Link
+                      href={`#${item.id}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      aria-current={isActive ? "true" : undefined}
+                      className={`flex items-center justify-between rounded-xl border px-4 py-3.5 transition-colors ${
+                        isActive
+                          ? "border-accent/25 bg-accent/[0.07] text-accent-deep"
+                          : "border-white/70 bg-white/60 text-ink-2 hover:bg-white"
+                      }`}
+                    >
+                      <span className="flex items-center gap-3 text-[15px] font-medium">
+                        <Icon className="h-4 w-4 text-accent" />
+                        {item.label}
+                      </span>
+                      <span className="font-mono text-[10px] tracking-wider text-ink-3">
+                        0{i + 1}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <a
+              href={RESUME_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => {
                 setMobileMenuOpen(false);
                 handleResumeClick(e);
               }}
-              className="mt-2 flex items-center justify-center gap-2 w-full py-3 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-600 rounded-xl shadow-lg shadow-purple-900/50 cursor-pointer"
+              className="btn btn-primary mt-5 w-full animate-drawer-in !text-sm"
+              style={{ animationDelay: `${SECTIONS.length * 45}ms` }}
             >
-              <FileText className="w-4 h-4" />
-              <span>Download Full Resume</span>
+              <FileText className="h-4 w-4" />
+              Download Full Resume
             </a>
-          </div>
+          </nav>
         </div>
       )}
-    </header>
+    </>
   );
 }

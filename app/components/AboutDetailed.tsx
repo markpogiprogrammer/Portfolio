@@ -1,247 +1,339 @@
 "use client";
 
 import { useState } from "react";
-import { User, Shield, Target, Dumbbell, Code2, CheckCircle2, Compass, Cpu, Flame } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Code2,
+  Compass,
+  Cpu,
+  Dumbbell,
+  Flame,
+  Shield,
+  Target,
+  User,
+} from "lucide-react";
+import Reveal from "@/app/components/motion/Reveal";
+import {
+  Orb,
+  Panel,
+  Section,
+  SectionHeader,
+} from "@/app/components/ui/primitives";
+
+type TabId = "journey" | "focus" | "objective";
+
+const TABS: { id: TabId; label: string; icon: typeof Compass }[] = [
+  { id: "journey", label: "My Journey", icon: Compass },
+  { id: "focus", label: "Core Focus", icon: Cpu },
+  { id: "objective", label: "Objective", icon: Target },
+];
 
 export default function AboutDetailed(): React.JSX.Element {
-  const [activeTab, setActiveTab] = useState<"journey" | "focus" | "objective">("journey");
+  const [active, setActive] = useState<TabId>("journey");
+  const activeIndex = TABS.findIndex((t) => t.id === active);
 
   return (
-    <section id="about" className="py-24 px-4 sm:px-6 relative bg-gradient-to-b from-[#110720] via-[#0d051a] to-[#110720]">
-      {/* Decorative ambient background */}
-      <div className="absolute top-1/2 left-0 w-80 h-80 bg-purple-900/10 rounded-full blur-[100px] pointer-events-none" />
+    <Section
+      id="about"
+      orbs={
+        <>
+          <Orb className="-left-32 top-1/4 h-[30rem] w-[30rem]" color="from-sky/35" />
+          <Orb className="-right-24 bottom-10 h-[26rem] w-[26rem]" color="from-[#c4b5fd]/35" />
+        </>
+      }
+    >
+      <SectionHeader
+        eyebrow="Background & Philosophy"
+        eyebrowIcon={User}
+        title="About"
+        highlight="Mark Oliver"
+        lede="An Information Systems graduate of De La Salle – College of Saint Benilde, drawn to software quality assurance, AI automation, and the discipline that transfers between engineering and athletics."
+      />
 
-      <div className="container mx-auto max-w-7xl relative z-10">
-
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider">
-            <User className="w-3.5 h-3.5" />
-            <span>Personal Background &amp; Philosophy</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            About <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">Mark Oliver</span>
-          </h2>
-          <p className="text-base sm:text-lg text-white/70 leading-relaxed">
-            Information Systems Student at De La Salle - College of Saint Benilde. Passionate about Software QA Testing, AI Automation, Learning New Skills & Technologies, Career Growth, and Fitness.
-          </p>
+      {/* Segmented control. Three equal cells let the indicator be positioned
+          with a transform instead of measured layout. */}
+      <Reveal className="mb-10 flex justify-center">
+        <div
+          role="tablist"
+          aria-label="About Mark Oliver"
+          className="glass-inset relative grid w-full max-w-lg grid-cols-3 gap-1 rounded-2xl p-1.5"
+        >
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-1.5 left-1.5 w-[calc((100%-0.75rem)/3)] rounded-xl bg-white shadow-[0_1px_2px_rgba(10,22,38,0.08),0_4px_12px_-4px_rgba(11,107,203,0.3)] transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ transform: `translateX(${activeIndex * 100}%)` }}
+          />
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = active === tab.id;
+            return (
+              <button
+                key={tab.id}
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
+                onClick={() => setActive(tab.id)}
+                className={`relative flex items-center justify-center gap-2 rounded-xl px-2 py-2.5 text-[13px] font-semibold transition-colors duration-200 ${
+                  isActive ? "text-accent-deep" : "text-ink-2 hover:text-ink"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
+      </Reveal>
 
-        {/* Tab Navigation Controls */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          <button
-            onClick={() => setActiveTab("journey")}
-            className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 border ${activeTab === "journey"
-              ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white border-purple-400 shadow-lg shadow-purple-900/50 scale-105"
-              : "bg-slate-950/60 text-white/70 border-white/10 hover:border-purple-500/30 hover:text-white"
-              }`}
+      <Panel className="overflow-hidden !rounded-3xl p-6 sm:p-9" hover={false}>
+        {/* ---------------------------------------------------------------- */}
+        {active === "journey" && (
+          <div
+            key="journey"
+            role="tabpanel"
+            id="panel-journey"
+            aria-labelledby="tab-journey"
+            className="animate-fade-rise grid grid-cols-1 items-start gap-9 lg:grid-cols-12"
           >
-            <Compass className="w-4 h-4 text-purple-300" />
-            <span>1. My Journey</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("focus")}
-            className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 border ${activeTab === "focus"
-              ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white border-purple-400 shadow-lg shadow-purple-900/50 scale-105"
-              : "bg-slate-950/60 text-white/70 border-white/10 hover:border-purple-500/30 hover:text-white"
-              }`}
-          >
-            <Cpu className="w-4 h-4 text-purple-300" />
-            <span>2. Core Focus Areas</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("objective")}
-            className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 border ${activeTab === "objective"
-              ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white border-purple-400 shadow-lg shadow-purple-900/50 scale-105"
-              : "bg-slate-950/60 text-white/70 border-white/10 hover:border-purple-500/30 hover:text-white"
-              }`}
-          >
-            <Target className="w-4 h-4 text-purple-300" />
-            <span>3. Career Objective</span>
-          </button>
-        </div>
-
-        {/* Tab Content Display */}
-        <div className="glass-card rounded-3xl p-6 sm:p-10 border border-purple-500/20 shadow-2xl backdrop-blur-xl">
-
-          {/* TAB 1: MY JOURNEY */}
-          {activeTab === "journey" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fadeIn">
-              <div className="lg:col-span-7 space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-purple-900/40 border border-purple-500/30 text-purple-300">
-                    <Dumbbell className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">IT &amp; Fitness</h3>
-                    <p className="text-xs text-purple-300 uppercase tracking-wider font-semibold">Discipline • Data Analytics • System Design</p>
-                  </div>
-                </div>
-
-                <p className="text-base text-white/80 leading-relaxed">
-                  My journey began with a passion for both technology and physical health. As an Information Systems Graduate, I quickly realized that software engineering and physical fitness share identical core principles: <strong className="text-purple-300">measurement, discipline, iterative testing, and progressive overload</strong>.
-                </p>
-
-                <p className="text-base text-white/80 leading-relaxed">
-                  Whether analyzing macro-nutritional data or executing test cases, my mindset centers around breaking down complex systems into predictable, optimized components. This dual discipline inspired my Capstone project, <strong className="text-purple-300 font-semibold">BiteBalance</strong>, a progressive web application designed to help Filipino adults track nutrition through localized food databases and AI-powered insights.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20">
-                    <h4 className="font-semibold text-white text-sm flex items-center gap-2 mb-1">
-                      <Flame className="w-4 h-4 text-amber-400" /> Analytical Discipline
-                    </h4>
-                    <p className="text-xs text-white/70">Approaching bug tracking and system validation with metric-driven accuracy.</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/20">
-                    <h4 className="font-semibold text-white text-sm flex items-center gap-2 mb-1">
-                      <Code2 className="w-4 h-4 text-purple-400" /> User-Centric Solutions
-                    </h4>
-                    <p className="text-xs text-white/70">Designing digital products tailored to real human habits and cultural nutrition.</p>
-                  </div>
+            <div className="space-y-5 lg:col-span-7">
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent-deep">
+                  <Dumbbell className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold">IT &amp; Fitness</h3>
+                  <p className="mono-meta mt-1 text-ink-3">
+                    Discipline · Data Analytics · System Design
+                  </p>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 flex justify-center">
-                <div className="w-full max-w-md p-6 rounded-2xl bg-gradient-to-br from-violet-950/60 to-slate-950 border border-purple-500/30 space-y-4">
-                  <h4 className="font-bold text-white text-lg flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" /> Quick Highlights
+              <p className="text-[15px] leading-relaxed text-ink-2">
+                My journey started with two obsessions: technology, and physical
+                training. As an Information Systems graduate I kept noticing that
+                the two share the same mechanics &mdash;{" "}
+                <strong className="font-semibold text-ink">
+                  measurement, discipline, iterative testing, and progressive
+                  overload
+                </strong>
+                . A training block is a test suite. A missed PR is a regression.
+              </p>
+
+              <p className="text-[15px] leading-relaxed text-ink-2">
+                Whether I&rsquo;m parsing nutrition data or writing test cases, the
+                instinct is the same: break a complicated system into parts that
+                can be measured, then improve them one run at a time. That instinct
+                produced my capstone,{" "}
+                <strong className="font-semibold text-ink">BiteBalance</strong>, a
+                progressive web app that helps Filipino adults track nutrition
+                against a localized food database.
+              </p>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Panel inset className="p-4" hover={false}>
+                  <h4 className="flex items-center gap-2 text-sm font-semibold">
+                    <Flame className="h-4 w-4 text-rust" />
+                    Analytical Discipline
                   </h4>
-                  <ul className="space-y-3 text-sm text-white/80">
-                    <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-purple-400 mt-2 flex-shrink-0" />
-                      <span><strong>Academic Background:</strong> De La Salle - College of Saint Benilde (BS Information Systems &apos;26)</span>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-2">
+                    Metric-driven accuracy when tracking defects and validating
+                    system behaviour.
+                  </p>
+                </Panel>
+                <Panel inset className="p-4" hover={false}>
+                  <h4 className="flex items-center gap-2 text-sm font-semibold">
+                    <Code2 className="h-4 w-4 text-accent" />
+                    User-Centric Solutions
+                  </h4>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-2">
+                    Products shaped around real habits and real cultural context,
+                    not assumptions.
+                  </p>
+                </Panel>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <Panel inset className="p-6">
+                <h4 className="flex items-center gap-2 font-display text-base font-semibold">
+                  <CheckCircle2 className="h-4 w-4 text-emerald" />
+                  Quick Highlights
+                </h4>
+                <ul className="mt-4 space-y-3">
+                  {[
+                    <>
+                      <strong className="font-semibold text-ink">Academic background:</strong>{" "}
+                      BS Information Systems, De La Salle &ndash; College of Saint
+                      Benilde (&rsquo;26)
+                    </>,
+                    <>
+                      <strong className="font-semibold text-ink">Honors:</strong>{" "}
+                      3&times; Dean&rsquo;s List recipient for academic excellence
+                    </>,
+                    <>
+                      <strong className="font-semibold text-ink">Capstone:</strong>{" "}
+                      BiteBalance PWA &mdash; nominated for Best Capstone Thesis
+                    </>,
+                    <>
+                      <strong className="font-semibold text-ink">Primary focus:</strong>{" "}
+                      Software Quality Assurance testing
+                    </>,
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-ink-2">
+                      <span className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                      <span>{item}</span>
                     </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-purple-400 mt-2 flex-shrink-0" />
-                      <span><strong>Honors:</strong> 3x Dean&apos;s Lister Recipient for academic excellence</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-purple-400 mt-2 flex-shrink-0" />
-                      <span><strong>Capstone Thesis:</strong> BiteBalance PWA — Nominated for Best Capstone Thesis</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-purple-400 mt-2 flex-shrink-0" />
-                      <span><strong>Primary Focus:</strong> Software Quality Assurance Testing</span>
-                    </li>
-                  </ul>
+                  ))}
+                </ul>
+              </Panel>
+            </div>
+          </div>
+        )}
+
+        {/* ---------------------------------------------------------------- */}
+        {active === "focus" && (
+          <div
+            key="focus"
+            role="tabpanel"
+            id="panel-focus"
+            aria-labelledby="tab-focus"
+            className="animate-fade-rise"
+          >
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <h3 className="font-display text-2xl font-semibold">
+                Technical Specializations
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-2">
+                Bridging system reliability, defect detection, and web development.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+              {[
+                {
+                  icon: Shield,
+                  title: "Software & Hardware QA",
+                  body: "Manual testing (Black Box, E2E, Smoke, Sanity, Regression, Spot), Playwright with Gemini CLI automation, AI agent testing, Ayala Malls parking hardware QA, and BabyPlus physical item inspection.",
+                  tags: ["Playwright CLI", "Jira", "Excel", "Wikis"],
+                },
+                {
+                  icon: Code2,
+                  title: "Web Development",
+                  body: "Building responsive frontends and backends with React, Next.js, C#, SQL Server, TypeScript, and Node.js.",
+                  tags: ["React", "Next.js", "C#", "SQL"],
+                },
+                {
+                  icon: Cpu,
+                  title: "Systems Analysis & Design",
+                  body: "Translating business requirements into system workflows, ER diagrams, data flow diagrams, and Figma prototypes.",
+                  tags: ["UML", "Figma", "Requirements"],
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Panel key={item.title} className="group flex flex-col p-6">
+                    <span className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-accent/10 text-accent-deep transition-transform duration-300 group-hover:scale-110">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <h4 className="font-display text-lg font-semibold">{item.title}</h4>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-2">
+                      {item.body}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {item.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-lg border border-accent/15 bg-accent/[0.06] px-2.5 py-1 font-mono text-[10.5px] font-medium tracking-wide text-accent-deep"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </Panel>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ---------------------------------------------------------------- */}
+        {active === "objective" && (
+          <div
+            key="objective"
+            role="tabpanel"
+            id="panel-objective"
+            aria-labelledby="tab-objective"
+            className="animate-fade-rise grid grid-cols-1 items-start gap-9 lg:grid-cols-12"
+          >
+            <div className="space-y-5 lg:col-span-7">
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent-deep">
+                  <Target className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold">Career Objectives</h3>
+                  <p className="mono-meta mt-1 text-ink-3">
+                    Manual &amp; Automation Testing · AI Workflow Automation
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-[15px] leading-relaxed text-ink-2">
+                My immediate goal is a{" "}
+                <strong className="font-semibold text-ink">
+                  Software Quality Assurance role
+                </strong>{" "}
+                where I can bring my testing background, bug documentation skills,
+                and analytical rigour &mdash; and keep learning the tools enterprise
+                teams actually use.
+              </p>
+
+              <div className="space-y-3">
+                <h4 className="font-display text-sm font-semibold">
+                  What I&rsquo;d bring to your team
+                </h4>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {[
+                    ["Defect Prevention", "Systematic test design that catches bugs before they reach production."],
+                    ["Cross-Functional Clarity", "Bug reports developers and stakeholders can act on without a meeting."],
+                    ["Continuous Learning", "Rapid ramp-up on enterprise tooling, security frameworks, and CI/CD."],
+                  ].map(([title, body]) => (
+                    <Panel key={title} inset className="flex gap-2.5 p-4" hover={false}>
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald" />
+                      <p className="text-sm leading-relaxed text-ink-2">
+                        <strong className="font-semibold text-ink">{title}:</strong>{" "}
+                        {body}
+                      </p>
+                    </Panel>
+                  ))}
                 </div>
               </div>
             </div>
-          )}
 
-          {/* TAB 2: CORE FOCUS AREAS */}
-          {activeTab === "focus" && (
-            <div className="space-y-8 animate-fadeIn">
-              <div className="text-center max-w-2xl mx-auto space-y-2">
-                <h3 className="text-2xl font-bold text-white">Technical Specializations</h3>
-                <p className="text-sm text-white/70">Bridging system reliability, defect detection, and web development.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-
-                {/* Focus 1: QA & Testing */}
-                <div className="p-6 rounded-2xl bg-slate-950/70 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 group hover:-translate-y-1">
-                  <div className="w-12 h-12 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center text-purple-300 mb-4 group-hover:scale-110 transition-transform">
-                    <Shield className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2">Software &amp; Physical Hardware QA</h4>
-                  <p className="text-xs text-white/70 leading-relaxed mb-4">
-                    Manual testing (Black Box, E2E, Smoke, Sanity, Regression, Spot), Playwright with Gemini CLI automation, AI Agent testing, hardware QA (Ayala Malls Parking Hardware), and physical item inspection (BabyPlus).
-                  </p>
-                  <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider">Playwright CLI • Jira • Excel • Wikis</span>
-                </div>
-
-                {/* Focus 2: Web Development */}
-                <div className="p-6 rounded-2xl bg-slate-950/70 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 group hover:-translate-y-1">
-                  <div className="w-12 h-12 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center text-purple-300 mb-4 group-hover:scale-110 transition-transform">
-                    <Code2 className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2">Web Development</h4>
-                  <p className="text-xs text-white/70 leading-relaxed mb-4">
-                    Building responsive frontends and backends using React, Next.js, C#, SQL Server, TypeScript and Node.js.
-                  </p>
-                  <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider">React • Next.js • C# • SQL</span>
-                </div>
-
-                {/* Focus 3: System Analysis */}
-                <div className="p-6 rounded-2xl bg-slate-950/70 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 group hover:-translate-y-1">
-                  <div className="w-12 h-12 rounded-xl bg-purple-900/50 border border-purple-500/30 flex items-center justify-center text-purple-300 mb-4 group-hover:scale-110 transition-transform">
-                    <Cpu className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2">Systems Analysis &amp; Design</h4>
-                  <p className="text-xs text-white/70 leading-relaxed mb-4">
-                    Translating business requirements into detailed system workflows, ER diagrams, data flow diagrams, and Figma prototypes.
-                  </p>
-                  <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider">UML • Figma • Requirements</span>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: CAREER OBJECTIVE */}
-          {activeTab === "objective" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fadeIn">
-              <div className="lg:col-span-7 space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-purple-900/40 border border-purple-500/30 text-purple-300">
-                    <Target className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">Career Objectives</h3>
-                    <p className="text-xs text-purple-300 uppercase tracking-wider font-semibold">Manual & Automation Testng • AI Workflow Automation • Software Consulting</p>
-                  </div>
-                </div>
-
-                <p className="text-base text-white/80 leading-relaxed">
-                  As an Information Systems Graduate, my immediate objective is to secure a challenging <strong className="text-purple-300">Software Quality Assurance (QA) role</strong> where I can contribute my testing expertise, bug documentation skills, and analytical rigor while still learning new skills & technologies.
+            <div className="lg:col-span-5">
+              <Panel className="flex flex-col items-center p-6 text-center">
+                <span className="grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-sky/25 to-accent/15 text-accent-deep">
+                  <Shield className="h-7 w-7" />
+                </span>
+                <h4 className="mt-4 font-display text-lg font-semibold">
+                  Ready for Placement
+                </h4>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-2">
+                  Available for work opportunities. Equipped with hands-on capstone
+                  experience, formal test case management, web development knowledge,
+                  and a completed junior QA internship.
                 </p>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-white text-sm">Key Value Contributions to Your Team:</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs text-white/80">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span><strong>Defect Prevention:</strong> Systematic test design to capture bugs prior to production releases.</span>
-                    </div>
-                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs text-white/80">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span><strong>Cross-Functional Clarity:</strong> Clear, actionable bug reporting for developers and stakeholders.</span>
-                    </div>
-                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs text-white/80">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span><strong>Continuous Learning:</strong> Rapidly adapting to enterprise tools, security frameworks, and CI/CD pipelines.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-5">
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-violet-900/30 via-slate-950 to-purple-950/30 border border-purple-500/30 text-center space-y-4 shadow-xl">
-                  <div className="w-16 h-16 rounded-full bg-purple-900/60 border border-purple-400/40 mx-auto flex items-center justify-center text-purple-300">
-                    <Shield className="w-8 h-8" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white">Ready for Placement</h4>
-                  <p className="text-xs text-white/70">
-                    Available for work opportunities. Equipped with hands-on capstone experience, formal test case management, web development knowledge, and Junior QA Internship Experience.
-                  </p>
-                  <a
-                    href="#contact"
-                    className="inline-block w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-xs font-semibold rounded-xl hover:from-violet-500 hover:to-purple-500 transition-all shadow-md"
-                  >
-                    Initiate Contact / Discuss Role
-                  </a>
-                </div>
-              </div>
+                <a href="#contact" className="btn btn-primary mt-5 w-full !text-sm">
+                  Initiate Contact
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </Panel>
             </div>
-          )}
-
-        </div>
-
-      </div>
-    </section>
+          </div>
+        )}
+      </Panel>
+    </Section>
   );
 }

@@ -1,53 +1,93 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
-import { Download, ShieldCheck, Mail, Award, Sparkles, GraduationCap, CheckCircle2, ArrowRight } from "lucide-react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+  ArrowRight,
+  Award,
+  Download,
+  GraduationCap,
+  Mail,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import Reveal from "@/app/components/motion/Reveal";
+import { Orb } from "@/app/components/ui/primitives";
+import { RESUME_URL } from "@/app/lib/resume";
 
 interface BannerProps {
   onOpenResume?: () => void;
 }
 
+/* Module scope so the reference is stable across renders — keeping this
+   inside the component previously re-fired the typing effect every render. */
+const ROLES = [
+  "Software QA Tester",
+  "Information Systems Graduate",
+  "Web Developer",
+] as const;
+
+const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
+
+/* Read as a subscription rather than inside an effect: it gives a stable
+   server snapshot (so no hydration mismatch) and avoids setState in the
+   effect body. */
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia(REDUCED_QUERY);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(REDUCED_QUERY).matches,
+    () => false,
+  );
+}
+
 export default function Banner({ onOpenResume }: BannerProps = {}): React.JSX.Element {
-  const texts = [
-    "Information Systems Graduate",
-    "Software QA Tester",
-    "Web Developer",
-  ];
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [typingSpeed, setTypingSpeed] = useState(90);
+  // One state object drives the whole loop. Every update happens inside a
+  // timer callback, so the effect body only ever schedules work.
+  const [state, setState] = useState<{
+    index: number;
+    text: string;
+    phase: "typing" | "holding" | "deleting";
+  }>({ index: 0, text: "", phase: "typing" });
+
+  const prefersReduced = usePrefersReducedMotion();
+
+  // Reduced motion pins the first role instead of cycling.
+  const display = prefersReduced ? ROLES[0] : state.text;
 
   useEffect(() => {
-    const currentText = texts[currentTextIndex];
+    if (prefersReduced) return;
 
-    if (!isDeleting) {
-      if (displayedText.length < currentText.length) {
-        const timeout = setTimeout(() => {
-          setDisplayedText(currentText.slice(0, displayedText.length + 1));
-        }, typingSpeed);
-        return () => clearTimeout(timeout);
-      } else {
-        const timeout = setTimeout(() => {
-          setIsDeleting(true);
-          setTypingSpeed(45);
-        }, 1800);
-        return () => clearTimeout(timeout);
-      }
-    } else {
-      if (displayedText.length > 0) {
-        const timeout = setTimeout(() => {
-          setDisplayedText(currentText.slice(0, displayedText.length - 1));
-        }, typingSpeed);
-        return () => clearTimeout(timeout);
-      } else {
-        setIsDeleting(false);
-        setCurrentTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
-        setTypingSpeed(90);
-      }
+    const current = ROLES[state.index];
+
+    if (state.phase === "holding") {
+      const hold = setTimeout(
+        () => setState((s) => ({ ...s, phase: "deleting" })),
+        1900,
+      );
+      return () => clearTimeout(hold);
     }
-  }, [displayedText, isDeleting, currentTextIndex, typingSpeed, texts]);
+
+    const tick = setTimeout(() => {
+      setState((s) => {
+        if (s.phase === "typing") {
+          const next = s.text.length + 1;
+          if (next >= current.length) return { ...s, text: current, phase: "holding" };
+          return { ...s, text: current.slice(0, next) };
+        }
+        // Deleting — the last character advances to the next role.
+        if (s.text.length <= 1) {
+          return { index: (s.index + 1) % ROLES.length, text: "", phase: "typing" };
+        }
+        return { ...s, text: s.text.slice(0, -1) };
+      });
+    }, state.phase === "deleting" ? 34 : 78);
+
+    return () => clearTimeout(tick);
+  }, [state, prefersReduced]);
 
   const handleResumeClick = (e: React.MouseEvent) => {
     if (onOpenResume) {
@@ -57,167 +97,175 @@ export default function Banner({ onOpenResume }: BannerProps = {}): React.JSX.El
   };
 
   const quickStats = [
-    { icon: Award, label: "Capstone Best Thesis Nominee", color: "text-amber-400 border-amber-500/30 bg-amber-500/10" },
-    { icon: Sparkles, label: "3x Dean's Lister", color: "text-purple-300 border-purple-500/30 bg-purple-500/10" },
-    { icon: GraduationCap, label: "Information Systems '26", color: "text-blue-400 border-blue-500/30 bg-blue-500/10" },
-    { icon: ShieldCheck, label: "Software QA Specialist", color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" },
+    { icon: Award, label: "Best Thesis Nominee", tone: "text-rust" },
+    { icon: Sparkles, label: "3× Dean's Lister", tone: "text-accent-deep" },
+    { icon: GraduationCap, label: "Information Systems '26", tone: "text-accent-deep" },
+    { icon: ShieldCheck, label: "Software QA Specialist", tone: "text-emerald" },
   ];
 
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center pt-28 pb-16 px-4 sm:px-6 overflow-hidden"
+      className="relative overflow-hidden px-5 pt-32 pb-20 sm:px-6 lg:pt-40 lg:pb-28"
     >
-      {/* Background Ambient Glow Orbs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-purple-900/30 via-violet-600/20 to-indigo-900/10 rounded-full blur-[120px] pointer-events-none animate-ambient-glow" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
+      <Orb
+        className="-top-32 left-[8%] h-[34rem] w-[34rem]"
+        color="from-sky/55"
+        parallax={0.06}
+      />
+      <Orb
+        className="top-[45%] -right-24 h-[30rem] w-[30rem]"
+        color="from-accent/35"
+        parallax={0.1}
+      />
+      <Orb
+        className="-bottom-24 left-[30%] h-[24rem] w-[24rem]"
+        color="from-[#c4b5fd]/40"
+        parallax={0.08}
+      />
 
-      <div className="container mx-auto max-w-7xl relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
-          {/* Left Column - Main Info */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-
-            {/* Status Pill */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-violet-950/80 border border-purple-500/30 shadow-inner backdrop-blur-md">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-16 lg:grid-cols-12 lg:gap-10">
+        {/* ---------------------------------------------------------------- */}
+        {/* Primary column                                                    */}
+        {/* ---------------------------------------------------------------- */}
+        <div className="flex flex-col items-center gap-6 text-center lg:col-span-7 lg:items-start lg:text-left">
+          <Reveal delay={0}>
+            <span className="inline-flex items-center gap-2.5 rounded-full border border-emerald/25 bg-emerald/[0.07] px-4 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.9)] backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-breathe absolute inline-flex h-full w-full rounded-full bg-emerald" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald" />
               </span>
-              <span className="text-xs font-semibold text-purple-200 tracking-wide uppercase">
-                Seeking Software QA Testing Opportunities
+              <span className="font-mono text-[10.5px] font-medium tracking-[0.09em] text-emerald uppercase">
+                Seeking Opportunities
               </span>
-            </div>
+            </span>
+          </Reveal>
 
-            {/* Name Heading */}
-            <div className="space-y-2">
-              <p className="text-xl sm:text-2xl text-purple-300 font-medium tracking-wide">
-                Hello, I am
-              </p>
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-none">
-                Mark Oliver{" "}
-                <span className="relative inline-block">
-                  <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent drop-shadow-sm">
-                    Quiazon
-                  </span>
-                  <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-violet-600 to-purple-400 rounded-full"></span>
+          <Reveal delay={70} className="space-y-3">
+            <p className="text-base font-medium text-accent-deep sm:text-lg">Hello, I&rsquo;m</p>
+            <h1 className="font-display text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+              Mark Oliver
+              <br className="hidden sm:block" />{" "}
+              <span className="text-gradient-accent">Quiazon</span>
+            </h1>
+          </Reveal>
+
+          {/* Role line — min-height reserves two wrapped lines on narrow
+              viewports so the layout never jumps mid-typing. */}
+          <Reveal delay={140}>
+            <p className="min-h-[3.25rem] text-xl font-semibold sm:min-h-[2.75rem] sm:text-2xl">
+              {/* The rotating line is decorative; screen readers get a
+                  static, complete description instead of a partial string. */}
+              <span className="sr-only">
+                Software QA Tester, Information Systems Graduate, and Web Developer.
+              </span>
+              <span
+                aria-hidden="true"
+                className="flex flex-wrap items-baseline justify-center gap-x-2 lg:justify-start"
+              >
+                <span className="text-ink-3">I&rsquo;m a</span>
+                <span className="text-accent-deep">
+                  {display}
+                  <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[0.15em] animate-breathe bg-accent align-baseline" />
                 </span>
-              </h1>
-            </div>
-
-            {/* Tagline */}
-            <div className="p-4 rounded-2xl bg-slate-950/50 border border-purple-500/20 backdrop-blur-md inline-block max-w-xl">
-              <p className="text-lg sm:text-xl text-purple-200 font-medium italic">
-                &ldquo;Obsessed with Growth.&rdquo;
-              </p>
-            </div>
-
-            {/* Typing Subtitle */}
-            <div className="h-16 flex items-center justify-center lg:justify-start">
-              <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                I&apos;m a{" "}
-                <span className="bg-gradient-to-r from-purple-400 to-violet-200 bg-clip-text text-transparent">
-                  {displayedText}
-                </span>
-                <span className="animate-pulse text-purple-400 ml-0.5">|</span>
-              </p>
-            </div>
-
-            {/* Concise Bio */}
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl leading-relaxed mx-auto lg:mx-0">
-              I am a 24-year-old Information Systems Graduate from{" "}
-              <strong className="text-purple-300 font-semibold">De La Salle - College of Saint Benilde</strong> (&apos;26). Passionate about Software Quality Assurance, Test Automation, System Testing, and Information Security, applying analytical precision and systematic discipline to build reliable digital solutions. Hopeful A.I. Workflow Automation & Software Consulting Practicioner.
+              </span>
             </p>
+          </Reveal>
 
-            {/* Dynamic CTA Buttons */}
-            <div className="pt-4 flex flex-wrap gap-4 justify-center lg:justify-start">
-              <a
-                href="/Mark Oliver Quiazon - Resume.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleResumeClick}
-                className="flex items-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-xl hover:from-violet-500 hover:to-purple-500 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-purple-900/50 hover:shadow-purple-600/50 cursor-pointer"
-              >
-                <Download className="w-5 h-5" />
-                <span>Download Resume</span>
-              </a>
+          <Reveal delay={210}>
+            <p className="prose-measure text-base leading-relaxed text-ink-2 sm:text-lg">
+              Information Systems graduate of{" "}
+              <strong className="font-semibold text-ink">
+                De&nbsp;La&nbsp;Salle&nbsp;&ndash;&nbsp;College of Saint Benilde
+              </strong>{" "}
+              (&rsquo;26). I work at the seam between software engineering and
+              structured analysis &mdash; designing test coverage, documenting
+              defects until they&rsquo;re closed, and building the web tools that
+              make it all repeatable.
+            </p>
+          </Reveal>
 
-              <a
-                href="#qa-showcase"
-                className="flex items-center gap-2.5 px-6 py-3.5 bg-slate-900/80 hover:bg-slate-800 text-purple-200 font-semibold rounded-xl border border-purple-500/30 hover:border-purple-400 transition-all duration-300 transform hover:-translate-y-0.5 shadow-md"
-              >
-                <ShieldCheck className="w-5 h-5 text-purple-400" />
-                <span>View QA Showcase</span>
-              </a>
+          <Reveal delay={280} className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+            <a
+              href={RESUME_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleResumeClick}
+              className="btn btn-primary"
+            >
+              <Download className="h-4 w-4" />
+              Download Resume
+            </a>
 
-              <a
-                href="#contact"
-                className="flex items-center gap-2 px-5 py-3.5 text-white/90 hover:text-white font-medium rounded-xl hover:bg-white/5 transition-all duration-200"
-              >
-                <Mail className="w-4 h-4" />
-                <span>Get in Touch</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
+            <a href="#contact" className="btn btn-ghost">
+              <Mail className="h-4 w-4" />
+              Get in Touch
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </Reveal>
 
-            {/* Quick-Stat Highlight Chips Grid */}
-            <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto lg:mx-0">
-              {quickStats.map((stat, idx) => {
-                const Icon = stat.icon;
-                return (
-                  <div
-                    key={idx}
-                    className={`flex flex-col items-center lg:items-start p-3 rounded-xl border backdrop-blur-sm transition-all hover:scale-105 ${stat.color}`}
-                  >
-                    <Icon className="w-5 h-5 mb-1.5" />
-                    <span className="text-xs font-bold text-white tracking-wide text-center lg:text-left">
-                      {stat.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+          <Reveal
+            delay={350}
+            className="grid w-full max-w-xl grid-cols-2 gap-3 sm:gap-3.5"
+          >
+            {quickStats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.label}
+                  className="glass glass-hover flex items-center gap-2.5 rounded-xl px-3.5 py-3"
+                >
+                  <Icon className={`h-4 w-4 shrink-0 ${stat.tone}`} />
+                  <span className="text-[13px] leading-tight font-medium text-ink-2">
+                    {stat.label}
+                  </span>
+                </div>
+              );
+            })}
+          </Reveal>
+        </div>
 
-          </div>
+        {/* ---------------------------------------------------------------- */}
+        {/* Portrait column                                                  */}
+        {/* ---------------------------------------------------------------- */}
+        <div className="flex justify-center lg:col-span-5">
+          <Reveal variant="scale" delay={200} className="w-full max-w-sm lg:max-w-none">
+            <div className="relative">
+              {/* Specular halo behind the glass. */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-8 -z-10 rounded-full bg-gradient-to-tr from-sky/45 via-accent/25 to-transparent blur-3xl"
+              />
 
-          {/* Right Column - Avatar Visual */}
-          <div className="lg:col-span-5 flex justify-center items-center relative">
-            <div className="relative w-72 h-72 sm:w-96 sm:h-96 lg:w-[420px] lg:h-[420px]">
-
-              {/* Outer Glowing Ring */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-violet-600 via-purple-500 to-indigo-600 opacity-30 blur-2xl animate-pulse" />
-
-              {/* Card Container */}
-              <div className="relative w-full h-full rounded-3xl bg-slate-950/40 border border-purple-500/20 backdrop-blur-xl p-4 flex items-center justify-center overflow-hidden shadow-2xl group">
-
-                {/* Glow Overlay Image */}
-                <Image
-                  src="/assets/me-glow.png"
-                  alt="Mark Oliver Quiazon Tech Glow Backdrop"
-                  fill
-                  className="object-cover opacity-60 group-hover:opacity-90 transition-opacity duration-500"
-                  priority
-                />
-
-                {/* Main Avatar Image */}
-                <Image
-                  src="/assets/meagain.png"
-                  alt="Mark Oliver Quiazon - Information Systems & QA Specialist"
-                  fill
-                  className="object-contain drop-shadow-[0_10px_25px_rgba(139,92,246,0.5)] transform group-hover:scale-105 transition-transform duration-500 z-10"
-                  priority
-                />
-
-                {/* Arrow Pointer Banner */}
-                <div className="absolute top-4 right-4 z-20 hidden sm:flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-full border border-purple-500/40 text-xs font-semibold text-purple-300 shadow-md">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Benilde IS &apos;26</span>
+              <div className="glass glass-edge relative overflow-hidden rounded-[2rem] p-6 sm:p-8">
+                <div className="relative mx-auto aspect-square w-full max-w-[19rem]">
+                  <Image
+                    src="/assets/meagain.png"
+                    alt="Mark Oliver Quiazon — Information Systems graduate and Software QA specialist"
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 90vw, 22rem"
+                    className="object-contain drop-shadow-[0_18px_28px_rgba(10,22,38,0.16)]"
+                  />
                 </div>
 
+                {/* Corner tag */}
+                <div className="mt-4 flex items-center justify-center gap-2 rounded-full border border-white/70 bg-white/60 py-2 backdrop-blur-md">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald" />
+                  <span className="font-mono text-[10px] font-medium tracking-[0.09em] text-ink-2 uppercase">
+                    Benilde IS &rsquo;26
+                  </span>
+                </div>
               </div>
-            </div>
-          </div>
 
+              {/* Floating credential chips */}
+              <div className="glass glass-hover absolute -left-3 top-14 hidden rounded-xl px-3 py-2 sm:block lg:-left-8">
+                <span className="mono-meta block text-emerald">500 HOURS</span>
+                <span className="text-[13px] font-semibold text-ink">QA Practicum</span>
+              </div>
+
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
