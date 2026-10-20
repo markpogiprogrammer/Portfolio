@@ -1,8 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
 import {
-  ChevronDown,
   CheckCircle2,
   FileCheck2,
   ShieldCheck,
@@ -37,21 +35,11 @@ export interface QAProjectItem {
   };
 }
 
-const SEVERITY_TONE: Record<string, string> = {
-  High: "border-rust/25 bg-rust/[0.08] text-rust",
-  Medium: "border-amber-500/30 bg-amber-500/10 text-amber-700",
-  Low: "border-ink/[0.12] bg-ink/[0.05] text-ink-2",
-};
-
 export default function QATestedProjectCard({
   project,
 }: {
   project: QAProjectItem;
 }): React.JSX.Element {
-  const [open, setOpen] = useState(false);
-  const panelId = useId();
-  const report = project.sampleDocContent;
-
   return (
     <Panel className="group flex h-full flex-col p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
@@ -114,122 +102,6 @@ export default function QATestedProjectCard({
           ))}
         </div>
       </div>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Disclosure: the metrics and sample defect report that ship with the
-          project record but sit behind a toggle rather than on every card.   */}
-      {/* ------------------------------------------------------------------ */}
-      {report && (
-        <div className="mt-4">
-          <button
-            onClick={() => setOpen((o) => !o)}
-            aria-expanded={open}
-            aria-controls={panelId}
-            className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald/20 bg-emerald/[0.06] px-3.5 py-2.5 text-[13px] font-semibold text-emerald transition-colors hover:bg-emerald/[0.11]"
-          >
-            <span>{open ? "Hide" : "View"} test report</span>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform duration-300 ${
-                open ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {/* grid-template-rows 0fr → 1fr animates the reveal without
-              transitioning height directly. */}
-          <div
-            id={panelId}
-            className="grid transition-[grid-template-rows] duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-            style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
-          >
-            <div className="overflow-hidden">
-              <div className="mt-3 space-y-4">
-                <p className="text-sm leading-relaxed text-ink-2">{report.overview}</p>
-
-                {/* Headline figures */}
-                <dl className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: "Test cases", value: String(report.totalTestCases) },
-                    { label: "Pass rate", value: report.passRate },
-                    { label: "Critical bugs", value: String(report.criticalBugsFixed) },
-                  ].map((figure) => (
-                    <div
-                      key={figure.label}
-                      className="rounded-xl border border-ink/[0.08] bg-white/60 px-3 py-2.5 text-center"
-                    >
-                      <dt className="mono-meta text-ink-3">{figure.label}</dt>
-                      <dd className="mt-1 font-display text-lg font-bold text-ink">
-                        {figure.value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-
-                {project.metricsHighlights && project.metricsHighlights.length > 0 && (
-                  <ul className="space-y-1.5">
-                    {project.metricsHighlights.map((metric) => (
-                      <li key={metric} className="flex items-start gap-2 text-[13px] leading-relaxed text-ink-2">
-                        <CheckCircle2 className="mt-[0.2rem] h-3.5 w-3.5 shrink-0 text-emerald" />
-                        <span>{metric}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {/* Sample defect record */}
-                <div className="rounded-xl border border-ink/[0.09] bg-white/65 p-3.5">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-[11px] font-medium text-ink">
-                      {report.sampleBugReport.bugId}
-                    </span>
-                    <span
-                      className={`rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider uppercase ${
-                        SEVERITY_TONE[report.sampleBugReport.severity] ?? SEVERITY_TONE.Low
-                      }`}
-                    >
-                      {report.sampleBugReport.severity}
-                    </span>
-                    <span className="rounded-full border border-emerald/25 bg-emerald/[0.08] px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider text-emerald uppercase">
-                      {report.sampleBugReport.status}
-                    </span>
-                  </div>
-
-                  <p className="text-[13px] font-semibold leading-snug text-ink">
-                    {report.sampleBugReport.title}
-                  </p>
-
-                  <div className="mt-3 space-y-2.5">
-                    <div>
-                      <MetaLabel className="mb-1">Steps to reproduce</MetaLabel>
-                      <ol className="list-decimal space-y-1 pl-4">
-                        {report.sampleBugReport.stepsToReproduce.map((step) => (
-                          <li key={step} className="text-[13px] leading-snug text-ink-2">
-                            {step}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-
-                    <div className="rounded-lg border border-emerald/15 bg-emerald/[0.05] p-2.5">
-                      <MetaLabel className="mb-1 text-emerald">Expected</MetaLabel>
-                      <p className="text-[13px] leading-snug text-ink-2">
-                        {report.sampleBugReport.expectedResult}
-                      </p>
-                    </div>
-
-                    <div className="rounded-lg border border-rust/15 bg-rust/[0.05] p-2.5">
-                      <MetaLabel className="mb-1 text-rust">Actual</MetaLabel>
-                      <p className="text-[13px] leading-snug text-ink-2">
-                        {report.sampleBugReport.actualResult}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </Panel>
   );
 }

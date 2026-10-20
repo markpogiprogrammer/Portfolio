@@ -318,7 +318,7 @@ export default function QAShowcase(): React.JSX.Element {
         eyebrowTone="emerald"
         title="Projects"
         highlight="Tested & Quality Assured"
-        lede="Software and physical hardware QA work — test suites, defect logs with screenshot evidence, and physical item quality inspections. Every project expands into its full test report."
+        lede="Software and physical hardware QA work — test suites, defect logs with screenshot evidence, and physical item quality inspections."
       />
 
       <div className="mb-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
